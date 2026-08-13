@@ -1,0 +1,105 @@
+@model optical_care_management_system.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "System Reports";
+    var inventory = ViewBag.Inventory as List<optical_care_management_system.Models.InventoryItem>
+                    ?? new List<optical_care_management_system.Models.InventoryItem>();
+    var appointments = ViewBag.Appointments as List<optical_care_management_system.Models.Appointment>
+                       ?? new List<optical_care_management_system.Models.Appointment>();
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2>System Reports</h2>
+            <p class="text-muted mb-0">Clinic-wide summary at a glance.</p>
+        </div>
+        @await Html.PartialAsync("_RecordToolbar", new optical_care_management_system.Models.RecordToolbarModel
+        {
+            Title = "System Report",
+            ExportAction = "ExportReports"
+        })
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3">
+        <div class="col-md-3"><div class="card p-3 bg-primary text-white">Total Patients: @Model.TotalPatients</div></div>
+        <div class="col-md-3"><div class="card p-3 bg-info text-white">Today's Appointments: @Model.TodayAppointments</div></div>
+        <div class="col-md-3"><div class="card p-3 bg-success text-white">Active Doctors: @Model.ActiveDoctors</div></div>
+        <div class="col-md-3"><div class="card p-3 bg-warning text-white">Low Stock Items: @Model.LowInventoryItems</div></div>
+    </div>
+
+    <!-- Inventory Table -->
+    <h3 class="mt-5">Inventory Status</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Item Name</th>
+                    <th>Category</th>
+                    <th class="text-end">Stock Quantity</th>
+                    <th class="text-end">Unit Price</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!inventory.Any())
+                {
+                    <tr><td colspan="5" class="text-center text-muted py-3">No inventory items recorded.</td></tr>
+                }
+                @foreach (var item in inventory)
+                {
+                    <tr>
+                        <td>@item.ItemName</td>
+                        <td>@item.Category</td>
+                        <td class="text-end">@item.StockQuantity</td>
+                        <td class="text-end">@item.UnitPrice.ToString("C")</td>
+                        <td>
+                            @if (item.StockQuantity <= item.LowStockThreshold)
+                            {
+                                <span class="badge bg-danger">Low Stock</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">In Stock</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Appointments Summary -->
+    <h3 class="mt-5">Appointments Summary</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Time Slot</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!appointments.Any())
+                {
+                    <tr><td colspan="5" class="text-center text-muted py-3">No appointments recorded.</td></tr>
+                }
+                @foreach (var appointment in appointments.OrderByDescending(a => a.AppointmentDate))
+                {
+                    <tr>
+                        <td>@appointment.AppointmentDate.ToString("dd/MM/yyyy")</td>
+                        <td>@(appointment.Patient?.FullName ?? "-")</td>
+                        <td>@(appointment.Doctor?.FullName ?? "Not assigned")</td>
+                        <td>@appointment.TimeSlot</td>
+                        <td>@appointment.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

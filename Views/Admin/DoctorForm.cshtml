@@ -1,0 +1,72 @@
+@model optical_care_management_system.Models.Doctor
+
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Add New Doctor" : "Edit Doctor";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>@ViewData["Title"]</h2>
+            <p class="text-muted mb-0">Doctor profile and licensing details.</p>
+        </div>
+        <a asp-action="Doctors" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left"></i> Back to Doctors
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <form asp-action="DoctorForm" asp-route-id="@(Model.Id == 0 ? null : (int?)Model.Id)" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CreatedAt" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="FullName" class="form-label">Full Name</label>
+                        <input asp-for="FullName" class="form-control" placeholder="Dr. Jane Doe" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Specialty" class="form-label">Specialty</label>
+                        <input asp-for="Specialty" class="form-control" placeholder="Optometrist" />
+                        <span asp-validation-for="Specialty" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" class="form-control" placeholder="doctor@clinic.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Phone" class="form-label">Phone</label>
+                        <input asp-for="Phone" class="form-control" placeholder="+252 61 000 0000" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LicenseNumber" class="form-label">License Number</label>
+                        <input asp-for="LicenseNumber" class="form-control" placeholder="LIC-00000" />
+                        <span asp-validation-for="LicenseNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save"></i> Save Doctor
+                    </button>
+                    <a asp-action="Doctors" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,51 @@
+@model optical_care_management_system.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-dark text-white text-center py-4">
+                    <h3 class="mb-0 fw-bold"><i class="bi bi-box-arrow-in-right"></i> Sign In</h3>
+                    <p class="mb-0 text-white-50">Access your dashboard</p>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-controller="Account" asp-action="Login" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Username</label>
+                            <input asp-for="Username" class="form-control" placeholder="Enter your username" />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Password</label>
+                            <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <!-- Remember Me -->
+                        <div class="mb-3 form-check">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label class="form-check-label" asp-for="RememberMe">Remember Me</label>
+                        </div>
+
+                        <!-- Login Button -->
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-dark btn-lg fw-bold">Sign In</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center py-3 bg-light border-0">
+                    <p class="mb-0 text-muted">New to our system? <a asp-controller="Account" asp-action="Register" class="text-primary fw-bold text-decoration-none">Create an account</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

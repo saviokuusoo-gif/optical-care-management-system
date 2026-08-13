@@ -1,0 +1,375 @@
+/* ============================================================
+   Frames catalogue
+   ============================================================ */
+
+:root {
+    --fr-primary: #1E88E5;
+    --fr-dark: #0F2D5C;
+    --fr-ink: #1f2937;
+    --fr-muted: #6b7280;
+    --fr-line: #e5e9f0;
+    --fr-surface: #ffffff;
+    --fr-bg: #f4f7fb;
+    --fr-shadow: 0 10px 30px rgba(15, 45, 92, 0.08);
+    --fr-shadow-lg: 0 22px 46px rgba(15, 45, 92, 0.16);
+    --fr-radius: 18px;
+}
+
+/* ---------------- Hero ---------------- */
+
+.hero-section {
+    background: linear-gradient(135deg, #0F2D5C 0%, #14498f 55%, #1E88E5 100%);
+    color: #fff;
+    padding: 3.2rem 0 3.6rem;
+    border-radius: 0 0 28px 28px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+/* Soft light bloom in the corner */
+.hero-section::after {
+    content: "";
+    position: absolute;
+    top: -120px;
+    right: -80px;
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.22), transparent 62%);
+    pointer-events: none;
+}
+
+.hero-section h1 {
+    font-weight: 700;
+    font-size: clamp(1.9rem, 4vw, 2.9rem);
+    margin-bottom: 0.5rem;
+}
+
+.hero-section p {
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 1.05rem;
+    margin-bottom: 1.6rem;
+}
+
+.hero-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.hero-features > div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    backdrop-filter: blur(6px);
+}
+
+.hero-features i {
+    font-size: 1rem;
+}
+
+/* ---------------- Sidebar filters ---------------- */
+
+.filter-card {
+    background: var(--fr-surface);
+    border: 1px solid var(--fr-line);
+    border-radius: var(--fr-radius);
+    box-shadow: var(--fr-shadow);
+    padding: 1.25rem;
+    position: sticky;
+    top: 1rem;
+}
+
+.filter-card h5 {
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-group {
+    margin-bottom: 1.15rem;
+    padding-bottom: 1.15rem;
+    border-bottom: 1px dashed var(--fr-line);
+}
+
+.filter-group:last-of-type {
+    border-bottom: none;
+}
+
+.filter-group > label,
+.filter-group .filter-title {
+    display: block;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--fr-muted);
+    margin-bottom: 0.55rem;
+}
+
+/* ---------------- Toolbar ---------------- */
+
+.frames-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    background: var(--fr-surface);
+    border: 1px solid var(--fr-line);
+    border-radius: var(--fr-radius);
+    box-shadow: var(--fr-shadow);
+    padding: 0.9rem 1.15rem;
+    margin-bottom: 1.25rem;
+}
+
+.frames-toolbar .result-count {
+    font-weight: 600;
+    color: var(--fr-ink);
+    margin: 0;
+}
+
+.frames-toolbar .result-count span {
+    color: var(--fr-primary);
+}
+
+/* ---------------- Frame card ---------------- */
+
+.frame-card {
+    background: var(--fr-surface);
+    border: 1px solid var(--fr-line);
+    border-radius: var(--fr-radius);
+    box-shadow: var(--fr-shadow);
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.frame-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--fr-shadow-lg);
+    border-color: rgba(30, 136, 229, 0.35);
+}
+
+/* Image panel */
+.frame-image {
+    position: relative;
+    background: linear-gradient(160deg, #f8fafc 0%, #eef3f9 100%);
+    padding: 1rem;
+    aspect-ratio: 16 / 10;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+/* width/height 100% + contain keeps tall product photos inside the box;
+   max-height alone lets them overflow the grid area. */
+.frame-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.35s ease;
+    mix-blend-mode: multiply;
+}
+
+.frame-card:hover .frame-image img {
+    transform: scale(1.07);
+}
+
+/* Availability + wishlist chips */
+.frame-badge {
+    position: absolute;
+    top: 0.7rem;
+    left: 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    z-index: 2;
+}
+
+.frame-badge.in-stock {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.frame-badge.out-stock {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.wishlist {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--fr-line);
+    display: grid;
+    place-items: center;
+    color: #94a3b8;
+    cursor: pointer;
+    z-index: 2;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.wishlist:hover {
+    color: #e11d48;
+    transform: scale(1.12);
+}
+
+/* Card body */
+.frame-card .card-body {
+    padding: 1rem 1.05rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.frame-card .product-code {
+    color: var(--fr-muted);
+    font-size: 0.74rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.frame-card h5 {
+    font-size: 1.02rem;
+    font-weight: 650;
+    margin: 0.2rem 0 0.15rem;
+    color: var(--fr-ink);
+    line-height: 1.3;
+}
+
+.frame-card .brand {
+    color: var(--fr-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+}
+
+/* Spec chips replace the old label/value paragraphs */
+.frame-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.7rem;
+}
+
+.spec-chip {
+    background: #f1f5f9;
+    color: #475569;
+    border-radius: 8px;
+    padding: 0.22rem 0.55rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.frame-card .rating {
+    display: flex;
+    align-items: center;
+    gap: 0.18rem;
+    font-size: 0.8rem;
+    margin-bottom: 0.55rem;
+}
+
+.frame-card .rating span {
+    color: var(--fr-muted);
+    margin-left: 0.25rem;
+}
+
+.frame-card .price {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--fr-dark);
+    margin-bottom: 0.15rem;
+}
+
+/* Push the buttons to the bottom so cards line up in the grid */
+.frame-card .card-actions {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    display: grid;
+    gap: 0.45rem;
+}
+
+.btn-book {
+    background: linear-gradient(135deg, var(--fr-primary), #1565c0);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+}
+
+.btn-book:hover {
+    background: linear-gradient(135deg, #1976d2, #0d47a1);
+    color: #fff;
+}
+
+/* ---------------- Empty state ---------------- */
+
+.frames-empty {
+    background: var(--fr-surface);
+    border: 1px dashed var(--fr-line);
+    border-radius: var(--fr-radius);
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--fr-muted);
+}
+
+.frames-empty i {
+    font-size: 2.4rem;
+    color: #cbd5e1;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+/* ---------------- Detail / booking pages ---------------- */
+
+.frame-detail-image {
+    background: linear-gradient(160deg, #f8fafc 0%, #eef3f9 100%);
+    border: 1px solid var(--fr-line);
+    border-radius: var(--fr-radius);
+    padding: 1.5rem;
+    display: grid;
+    place-items: center;
+    min-height: 260px;
+}
+
+.frame-detail-image img {
+    max-width: 100%;
+    max-height: 320px;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+}
+
+.spec-table th {
+    width: 42%;
+    color: var(--fr-muted);
+    font-weight: 600;
+}
+
+@media (max-width: 575.98px) {
+    .hero-section {
+        padding: 2.2rem 0 2.4rem;
+    }
+
+    .filter-card {
+        position: static;
+    }
+}

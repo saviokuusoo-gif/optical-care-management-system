@@ -1,0 +1,97 @@
+@model IEnumerable<optical_care_management_system.Models.Doctor>
+
+@{
+    ViewData["Title"] = "Doctors Management";
+    var doctors = Model.ToList();
+}
+
+<div class="container mt-4">
+
+    @if (TempData["Success"] is not null)
+    {
+        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2>Doctors Management</h2>
+            <p class="text-muted mb-0">Total Doctors: @doctors.Count</p>
+        </div>
+
+        <a asp-action="DoctorForm" class="btn btn-primary">
+            <i class="fa fa-user-plus"></i> Add New Doctor
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+
+            <div class="mb-3 no-print">
+                <input type="text" class="form-control" placeholder="Search doctor..." id="doctorSearch" />
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Specialty</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>License No.</th>
+                            <th width="170" class="text-end no-print">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="doctorTable">
+                        @if (!doctors.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    No doctors yet. Use <strong>Add New Doctor</strong> to create one.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var doctor in doctors)
+                        {
+                            <tr>
+                                <td>@doctor.FullName</td>
+                                <td>@doctor.Specialty</td>
+                                <td>@doctor.Email</td>
+                                <td>@doctor.Phone</td>
+                                <td>@doctor.LicenseNumber</td>
+                                <td class="text-end no-print">
+                                    <a asp-action="DoctorForm" asp-route-id="@doctor.Id" class="btn btn-sm btn-warning">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </a>
+                                    <form asp-action="DeleteDoctor" asp-route-id="@doctor.Id" method="post" style="display:inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Delete this doctor?')">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("doctorSearch")
+            .addEventListener("keyup", function () {
+                const value = this.value.toLowerCase();
+                document.querySelectorAll("#doctorTable tr").forEach(row => {
+                    row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
+                });
+            });
+    </script>
+}

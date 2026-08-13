@@ -1,0 +1,110 @@
+@model IEnumerable<optical_care_management_system.Models.InventoryItem>
+
+@{
+    ViewData["Title"] = "Inventory Management";
+    var items = Model.ToList();
+    var lowStock = items.Count(i => i.StockQuantity <= i.LowStockThreshold);
+    var totalValue = items.Sum(i => i.StockQuantity * i.UnitPrice);
+}
+
+<div class="container mt-4">
+
+    @if (TempData["Success"] is not null)
+    {
+        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2>Inventory Management</h2>
+            <p class="text-muted mb-0">
+                @items.Count item(s) &middot; @lowStock low on stock &middot; Total value @totalValue.ToString("C")
+            </p>
+        </div>
+
+        <a asp-action="InventoryForm" class="btn btn-primary">
+            <i class="fa fa-plus"></i> Add New Item
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+
+            <div class="mb-3 no-print">
+                <input type="text" class="form-control" placeholder="Search inventory..." id="inventorySearch" />
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Category</th>
+                            <th class="text-end">Stock</th>
+                            <th class="text-end">Unit Price</th>
+                            <th>Status</th>
+                            <th width="180" class="text-end no-print">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTable">
+                        @if (!items.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    No inventory items yet. Use <strong>Add New Item</strong> to create one.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var item in items)
+                        {
+                            <tr>
+                                <td>@item.ItemName</td>
+                                <td>@item.Category</td>
+                                <td class="text-end">@item.StockQuantity</td>
+                                <td class="text-end">@item.UnitPrice.ToString("C")</td>
+                                <td>
+                                    @if (item.StockQuantity <= item.LowStockThreshold)
+                                    {
+                                        <span class="badge bg-danger">Low Stock</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">In Stock</span>
+                                    }
+                                </td>
+                                <td class="text-end no-print">
+                                    <a asp-action="InventoryForm" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </a>
+                                    <form asp-action="DeleteInventoryItem" asp-route-id="@item.Id" method="post" style="display:inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Delete this inventory item?')">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("inventorySearch")
+            .addEventListener("keyup", function () {
+                const value = this.value.toLowerCase();
+                document.querySelectorAll("#inventoryTable tr").forEach(row => {
+                    row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
+                });
+            });
+    </script>
+}

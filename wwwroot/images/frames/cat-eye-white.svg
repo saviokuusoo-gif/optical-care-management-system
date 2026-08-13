@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 208" width="360" height="208" role="img" aria-label="White Cat Eye eyeglass frame">
+  <defs>
+    <linearGradient id="lens" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fbff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8eaed"/>
+      <stop offset="100%" stop-color="#c2c6cc"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <rect width="360" height="208" fill="#ffffff"/>
+
+  <g filter="url(#soft)">
+    <!-- temples folding back behind the lenses -->
+    <path d="M44,92 C26,84 14,86 6,96" fill="none" stroke="url(#metal)" stroke-width="7" stroke-linecap="round"/>
+    <path d="M316,92 C334,84 346,86 354,96" fill="none" stroke="url(#metal)" stroke-width="7" stroke-linecap="round"/>
+
+    <!-- bridge -->
+    <path d="M158,90 C168,76 192,76 202,90" fill="none" stroke="url(#metal)" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- lenses -->
+    <g fill="url(#lens)" stroke="url(#metal)" stroke-width="9" stroke-linejoin="round">
+      <path d="M48,80.0 C68,56.0 116,38.0 170,36.0 C162,66.0 156,82.0 154,94.0 C152,142.0 130,158.0 94,158.0 C66,156.0 46,132.0 48,80.0 Z" />
+      <path d="M206,80.0 C226,56.0 274,38.0 328,36.0 C320,66.0 314,82.0 312,94.0 C310,142.0 288,158.0 252,158.0 C224,156.0 204,132.0 206,80.0 Z" />
+    </g>
+  </g>
+</svg>

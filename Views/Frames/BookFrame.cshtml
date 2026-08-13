@@ -1,0 +1,92 @@
+@model optical_care_management_system.Models.Frame
+
+@{
+    ViewData["Title"] = $"Book {Model.Name}";
+    var image = string.IsNullOrWhiteSpace(Model.ImageUrl) ? "default-frame.svg" : Model.ImageUrl;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/frames.css" asp-append-version="true" />
+}
+
+<div class="container mt-4 mb-5">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Frames</a></li>
+            <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Id">@Model.Name</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Book</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+
+        <div class="col-lg-5">
+            <div class="frame-detail-image">
+                <img src="~/images/frames/@image" alt="@Model.Name"
+                     onerror="this.onerror=null;this.src='/images/frames/default-frame.svg';" />
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fa fa-bookmark"></i> Book This Frame</h4>
+                </div>
+
+                <div class="card-body">
+                    <h3 class="mb-1">@Model.Name</h3>
+                    <p class="text-primary fw-semibold mb-3">@Model.Brand</p>
+
+                    <div class="frame-specs mb-3">
+                        @if (!string.IsNullOrWhiteSpace(Model.Shape))
+                        {
+                            <span class="spec-chip">@Model.Shape</span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.Material))
+                        {
+                            <span class="spec-chip">@Model.Material</span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.Color))
+                        {
+                            <span class="spec-chip">@Model.Color</span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.Gender))
+                        {
+                            <span class="spec-chip">@Model.Gender</span>
+                        }
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <span class="fs-3 fw-bold text-dark">@Model.Price.ToString("C")</span>
+                        <span class="badge bg-success">Available</span>
+                    </div>
+
+                    <form asp-action="BookFrame" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label fw-semibold">Note for the clinic <span class="text-muted">(optional)</span></label>
+                            <textarea name="notes" id="notes" class="form-control" rows="3"
+                                      placeholder="e.g. preferred collection day, lens preference"></textarea>
+                        </div>
+
+                        <div class="alert alert-info small">
+                            <i class="fa fa-circle-info me-1"></i>
+                            Your booking is a reservation request. The clinic will confirm it and contact you
+                            when the frame is ready for collection.
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-book btn-lg">
+                                <i class="fa fa-check"></i> Confirm Booking
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

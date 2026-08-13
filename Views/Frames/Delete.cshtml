@@ -1,0 +1,16 @@
+@model optical_care_management_system.Models.Frame
+
+@{
+    ViewData["Title"] = "Delete Frame";
+}
+
+<h1>Delete Frame</h1>
+
+<p>Are you sure you want to delete @Model.Name?</p>
+
+<form asp-action="DeleteConfirmed" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

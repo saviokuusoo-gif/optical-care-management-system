@@ -1,0 +1,91 @@
+@model IEnumerable<optical_care_management_system.Models.ExaminationRecord>
+
+@{
+    ViewData["Title"] = "Examination Records";
+    var records = Model?.ToList() ?? new List<optical_care_management_system.Models.ExaminationRecord>();
+}
+
+<div class="container mt-4">
+
+    @if (TempData["Success"] is not null)
+    {
+        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2>Examination Records</h2>
+            <p class="text-muted mb-0">Total Records: @records.Count</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            @await Html.PartialAsync("_RecordToolbar", new optical_care_management_system.Models.RecordToolbarModel
+            {
+                Title = "Examination Records Report",
+                ExportAction = "ExportExaminationRecords",
+                RecordCount = records.Count
+            })
+            <a asp-action="ExaminationRecordForm" class="btn btn-primary no-print">
+                <i class="fa fa-plus"></i> Add New Record
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Date</th>
+                            <th>Left Eye</th>
+                            <th>Right Eye</th>
+                            <th>Visual Acuity</th>
+                            <th>Eye Pressure</th>
+                            <th>Notes</th>
+                            <th width="170" class="text-end no-print">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!records.Any())
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">
+                                    No examination records yet.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var item in records)
+                        {
+                            <tr>
+                                <td>@(item.Patient?.FullName ?? "-")</td>
+                                <td>@(item.Doctor?.FullName ?? "-")</td>
+                                <td>@item.ExamDate.ToString("dd/MM/yyyy")</td>
+                                <td>@item.LeftEye</td>
+                                <td>@item.RightEye</td>
+                                <td>@item.VisualAcuity</td>
+                                <td>@item.EyePressure</td>
+                                <td>@item.Notes</td>
+                                <td class="text-end no-print">
+                                    <a asp-action="ExaminationRecordForm" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </a>
+                                    <form asp-action="DeleteExaminationRecord" asp-route-id="@item.Id" method="post" style="display:inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this record?')">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

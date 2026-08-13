@@ -1,0 +1,57 @@
+  
+  @{
+    ViewData["Title"] = "Book an Appointment";
+    Layout = "~/Views/Shared/_LayoutAppointment.cshtml";
+}
+
+<div class="split-screen">
+    <!-- Left Side: Image & Messaging -->
+    <div class="split-screen-image">
+        <div class="text-center">
+            <img src="https://img.freepik.com/free-vector/medical-appointment-concept-illustration_114360-15579.jpg" 
+                 alt="Optical Care Appointment" class="mb-4">
+            
+            <h2 class="appointment-title">Smart Optical Care</h2>
+            <p class="appointment-subtitle">Book your appointment today and get professional eye care from our experienced team.</p>
+        </div>
+    </div>
+
+    <!-- Right Side: Appointment Form -->
+    <div class="split-screen-form">
+        <div class="appointment-card">
+            <h2>Book Your Appointment</h2>
+            
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-appointment" role="alert">
+                    @TempData["Success"]
+                </div>
+            }
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                
+                <div class="form-section">
+                    <label for="PatientName" class="form-label">Full Name *</label>
+                    <input id="PatientName" name="PatientName" type="text" class="form-control" required />
+                </div>
+
+                <div class="form-section">
+                    <label for="AppointmentDate" class="form-label">Preferred Date & Time *</label>
+                    <input id="AppointmentDate" name="AppointmentDate" type="datetime-local" class="form-control" required />
+                </div>
+
+                <div class="form-section">
+                    <label for="Notes" class="form-label">Additional Notes (Optional)</label>
+                    <textarea id="Notes" name="Notes" class="form-control" rows="3" placeholder="Any specific concerns or preferences..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-submit w-100 mt-4">Confirm Booking</button>
+            </form>
+
+            <p class="text-center text-muted mt-3" style="font-size: 0.9rem;">
+                A confirmation email will be sent to your registered email address.
+            </p>
+        </div>
+    </div>
+</div>

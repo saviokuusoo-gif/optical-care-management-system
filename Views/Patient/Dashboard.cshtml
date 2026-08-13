@@ -1,0 +1,179 @@
+@model IEnumerable<optical_care_management_system.Models.Appointment>
+
+@{
+    ViewData["Title"] = "Patient Dashboard";
+    var patient = ViewBag.Patient as optical_care_management_system.Models.Patient;
+    var totalAppointments = Model?.Count() ?? 0;
+    var totalPrescriptions = Math.Max(totalAppointments, 0);
+    var visits = Math.Max(totalAppointments, 0);
+    var accountStatus = "Active";
+}
+
+<div class="patient-dashboard-page">
+    <div class="dashboard-shell">
+        <section class="card-panel welcome-card">
+            <div class="welcome-content">
+                <p class="eyebrow">Patient Portal</p>
+                <h1>Welcome back, @(patient?.FullName ?? "Patient")</h1>
+                <p class="welcome-subtitle">Your eye care journey stays organized with quick access to appointments, prescriptions, and support.</p>
+                <div class="welcome-actions">
+                    <a asp-controller="Patient" asp-action="BookAppointment" class="btn btn-primary btn-pill">
+                        <i class="bi bi-calendar-plus"></i> Book Appointment
+                    </a>
+                    <a asp-controller="Patient" asp-action="Profile" class="btn btn-outline-primary btn-pill">
+                        <i class="bi bi-person-gear"></i> Edit Profile
+                    </a>
+                </div>
+            </div>
+            <div class="welcome-illustration" aria-hidden="true">
+                <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="36" y="40" width="248" height="160" rx="24" fill="#EAF2FF" />
+                    <circle cx="116" cy="108" r="38" fill="#2563EB" opacity="0.9" />
+                    <rect x="84" y="150" width="64" height="24" rx="12" fill="#1D4ED8" />
+                    <rect x="176" y="88" width="72" height="54" rx="16" fill="#FFFFFF" />
+                    <rect x="188" y="100" width="48" height="8" rx="4" fill="#BFDBFE" />
+                    <rect x="188" y="116" width="32" height="8" rx="4" fill="#BFDBFE" />
+                    <path d="M184 178c12-16 32-24 54-24 24 0 46 10 58 28" stroke="#2563EB" stroke-width="8" fill="none" stroke-linecap="round" />
+                </svg>
+            </div>
+        </section>
+
+        <section class="stats-grid" aria-label="Patient statistics">
+            <article class="stat-card">
+                <div class="stat-icon blue"><i class="bi bi-calendar2-week"></i></div>
+                <div>
+                    <h3>@totalAppointments</h3>
+                    <p>Total Appointments</p>
+                </div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-icon green"><i class="bi bi-prescription"></i></div>
+                <div>
+                    <h3>@totalPrescriptions</h3>
+                    <p>Prescriptions</p>
+                </div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-icon purple"><i class="bi bi-eye"></i></div>
+                <div>
+                    <h3>@visits</h3>
+                    <p>Visits</p>
+                </div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-icon amber"><i class="bi bi-shield-check"></i></div>
+                <div>
+                    <h3>@accountStatus</h3>
+                    <p>Account Status</p>
+                </div>
+            </article>
+        </section>
+
+        <section class="card-panel quick-actions-card">
+            <div class="section-heading">
+                <h2>Quick Actions</h2>
+            </div>
+            <div class="quick-actions">
+                <a asp-controller="Patient" asp-action="Appointments" class="quick-action-btn">
+                    <i class="bi bi-list-ul"></i>
+                    <span>View Appointments</span>
+                </a>
+                <a asp-controller="Patient" asp-action="Prescriptions" class="quick-action-btn">
+                    <i class="bi bi-capsule"></i>
+                    <span>View Prescriptions</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="card-panel appointments-card">
+            <div class="section-heading">
+                <h2>Recent Appointments</h2>
+            </div>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table appointment-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Doctor</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var appt in Model)
+                            {
+                                <tr>
+                                    <td>@(appt.AppointmentDate.ToString("MMM dd, yyyy"))</td>
+                                    <td>Dr. @(appt.Doctor?.FullName ?? "Staff")</td>
+                                    <td>@(appt.TimeSlot ?? "-")</td>
+                                    <td>
+                                        <span class="status-pill status-@((appt.Status.ToString().ToLower()))">
+                                            @appt.Status
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <svg class="empty-illustration" viewBox="0 0 240 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <rect x="40" y="30" width="160" height="120" rx="24" fill="#EAF2FF" />
+                        <rect x="72" y="70" width="96" height="56" rx="16" fill="#FFFFFF" />
+                        <rect x="88" y="84" width="64" height="8" rx="4" fill="#BFDBFE" />
+                        <rect x="88" y="100" width="42" height="8" rx="4" fill="#BFDBFE" />
+                        <circle cx="176" cy="62" r="20" fill="#2563EB" />
+                        <path d="M168 58h16" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                        <path d="M176 50v16" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    </svg>
+                    <h3>No recent appointments.</h3>
+                    <p>Your upcoming visits will appear here once you book one.</p>
+                </div>
+            }
+        </section>
+
+        <section class="card-panel contact-card">
+            <div class="section-heading">
+                <h2>Contact Information</h2>
+            </div>
+            <div class="contact-list">
+                <div class="contact-item">
+                    <i class="bi bi-telephone"></i>
+                    <div>
+                        <strong>Phone</strong>
+                        <span>@(patient?.Phone ?? "+1 555 0100")</span>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="bi bi-envelope"></i>
+                    <div>
+                        <strong>Email</strong>
+                        <span>@(patient?.Email ?? "care@smartoptical.com")</span>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <div>
+                        <strong>Address</strong>
+                        <span>@(patient?.Address ?? "45 Vision Avenue, Downtown")</span>
+                    </div>
+                </div>
+            </div>
+            <a href="#" class="btn btn-outline-primary btn-pill contact-support-btn">Contact Support</a>
+        </section>
+
+        <footer class="dashboard-footer">
+            <span>© 2026 Optical Care</span>
+            <div>
+                <a asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+                <a href="#">Terms &amp; Conditions</a>
+            </div>
+        </footer>
+    </div>
+</div>

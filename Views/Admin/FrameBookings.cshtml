@@ -1,0 +1,149 @@
+@model IEnumerable<optical_care_management_system.Models.FrameBooking>
+
+@{
+    ViewData["Title"] = "Frame Bookings";
+    var bookings = Model?.ToList() ?? new List<optical_care_management_system.Models.FrameBooking>();
+    string? status = ViewBag.Status;
+    int pendingCount = ViewBag.PendingCount ?? 0;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/frames.css" asp-append-version="true" />
+}
+
+<div class="container mt-4 mb-5">
+
+    @if (TempData["Success"] is not null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa fa-circle-check me-1"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="mb-0">Frame Bookings</h2>
+            <p class="text-muted mb-0">
+                @bookings.Count booking(s) shown
+                @if (pendingCount > 0)
+                {
+                    <span class="badge bg-warning text-dark ms-1">@pendingCount pending</span>
+                }
+            </p>
+        </div>
+
+        <div class="btn-group" role="group" aria-label="Filter by status">
+            <a asp-action="FrameBookings"
+               class="btn btn-outline-primary @(string.IsNullOrEmpty(status) ? "active" : "")">All</a>
+            @foreach (var option in new[] { "Pending", "Approved", "Collected", "Canceled" })
+            {
+                <a asp-action="FrameBookings" asp-route-status="@option"
+                   class="btn btn-outline-primary @(status == option ? "active" : "")">@option</a>
+            }
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width:110px;">Frame</th>
+                            <th>Frame Name</th>
+                            <th>Patient</th>
+                            <th class="text-end">Price</th>
+                            <th>Booked On</th>
+                            <th>Notes</th>
+                            <th>Status</th>
+                            <th class="text-end" style="width:230px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!bookings.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    No frame bookings@(string.IsNullOrEmpty(status) ? "" : $" with status \"{status}\"") yet.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var booking in bookings)
+                        {
+                            var frame = booking.Frame;
+                            var image = string.IsNullOrWhiteSpace(frame?.ImageUrl) ? "default-frame.svg" : frame!.ImageUrl;
+
+                            var badgeClass = booking.Status switch
+                            {
+                                "Approved" => "bg-success",
+                                "Collected" => "bg-primary",
+                                "Canceled" => "bg-secondary",
+                                _ => "bg-warning text-dark"
+                            };
+
+                            <tr>
+                                <td>
+                                    <div class="frame-image rounded" style="width:96px;aspect-ratio:16/10;padding:.35rem;">
+                                        <img src="~/images/frames/@image" alt="@(frame?.Name ?? "Frame")"
+                                             onerror="this.onerror=null;this.src='/images/frames/default-frame.svg';" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">@(frame?.Name ?? "Frame removed")</div>
+                                    <div class="text-muted small">@(frame?.Brand ?? "-")</div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">@(booking.Patient?.FullName ?? "-")</div>
+                                    <div class="text-muted small">@(booking.Patient?.Phone ?? "")</div>
+                                </td>
+                                <td class="text-end">@(frame is null ? "-" : frame.Price.ToString("C"))</td>
+                                <td>@booking.BookingDate.ToString("dd MMM yyyy")</td>
+                                <td class="small text-muted">@booking.Notes</td>
+                                <td><span class="badge @badgeClass">@booking.Status</span></td>
+                                <td class="text-end">
+                                    @if (booking.Status == "Pending")
+                                    {
+                                        <form asp-action="UpdateFrameBookingStatus" asp-route-id="@booking.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="status" value="Approved" />
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="fa fa-check"></i> Approve
+                                            </button>
+                                        </form>
+                                        <form asp-action="UpdateFrameBookingStatus" asp-route-id="@booking.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="status" value="Canceled" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Cancel this booking?')">
+                                                <i class="fa fa-xmark"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (booking.Status == "Approved")
+                                    {
+                                        <form asp-action="UpdateFrameBookingStatus" asp-route-id="@booking.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="status" value="Collected" />
+                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                <i class="fa fa-box-open"></i> Mark Collected
+                                            </button>
+                                        </form>
+                                    }
+
+                                    <form asp-action="DeleteFrameBooking" asp-route-id="@booking.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                                onclick="return confirm('Delete this booking record?')">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

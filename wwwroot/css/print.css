@@ -1,0 +1,129 @@
+/* Print-friendly rules: strips the app chrome so only the record content prints. */
+
+.print-only {
+    display: none;
+}
+
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 12mm;
+    }
+
+    /* Hide everything that is app chrome, not record content. */
+    header,
+    footer,
+    .navbar,
+    .admin-sidebar,
+    .admin-topbar,
+    .no-print,
+    .btn,
+    form[role="search"],
+    .welcome-illustration,
+    #patientSearch,
+    .search-box,
+    .chart-area {
+        display: none !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+
+    body {
+        background: #fff !important;
+        color: #000 !important;
+        font-size: 11pt;
+    }
+
+    /* Let content use the full page instead of the app's centered container. */
+    .container,
+    .container-fluid,
+    .admin-main,
+    .admin-dashboard-shell {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+        grid-template-columns: none !important;
+    }
+
+    .card,
+    .panel-card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .card-body {
+        padding: 0 !important;
+    }
+
+    /* Print header block shown only on paper. */
+    .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 14px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 8px;
+    }
+
+    .print-header h2 {
+        margin: 0;
+        font-size: 18pt;
+        font-weight: 700;
+    }
+
+    .print-header .print-meta {
+        font-size: 9pt;
+        color: #333;
+        margin-top: 4px;
+    }
+
+    /* Tables: readable in black and white, repeating header on each page. */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 9.5pt;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tr {
+        page-break-inside: avoid;
+    }
+
+    table th,
+    table td {
+        border: 1px solid #444 !important;
+        padding: 5px 7px !important;
+        color: #000 !important;
+        background: #fff !important;
+    }
+
+    table thead th,
+    .table-dark th {
+        background: #e5e5e5 !important;
+        color: #000 !important;
+        font-weight: 700;
+    }
+
+    .table-hover tbody tr:hover {
+        background: #fff !important;
+    }
+
+    /* Badges lose their colour on paper, so give them an outline instead. */
+    .badge {
+        border: 1px solid #444 !important;
+        color: #000 !important;
+        background: #fff !important;
+        font-weight: 600;
+    }
+
+    a {
+        text-decoration: none !important;
+        color: #000 !important;
+    }
+}

@@ -1,0 +1,67 @@
+@model optical_care_management_system.Models.BookingViewModel
+
+@{
+    ViewData["Title"] = "Book Appointment";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-calendar-plus"></i> Book an Appointment</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Patient" asp-action="BookAppointment" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        
+
+                        <!-- Doorashada Taariikhda -->
+                        <div class="mb-3">
+                            <label class="form-label">Appointment Date</label>
+                            <input asp-for="AppointmentDate" type="date" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                        </div>
+
+                        <!-- Doorashada Saacada -->
+                        <div class="mb-3">
+                            <label class="form-label">Preferred Time Slot</label>
+                            <select asp-for="TimeSlot" class="form-select">
+                                <option value="">-- Select Time --</option>
+                                <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
+                                <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                                <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
+                                <option value="02:00 PM - 03:00 PM">02:00 PM - 03:00 PM</option>
+                                <option value="03:00 PM - 04:00 PM">03:00 PM - 04:00 PM</option>
+                            </select>
+                            <span asp-validation-for="TimeSlot" class="text-danger"></span>
+                        </div>
+
+                        <!-- Doorashada Dhakhtarka -->
+                        <div class="mb-3">
+                            <label class="form-label">Preferred Doctor <span class="text-muted">(optional)</span></label>
+                            <select asp-for="DoctorId" class="form-select"
+                                    asp-items="@(ViewBag.Doctors as SelectList)">
+                                <option value="">-- No preference --</option>
+                            </select>
+                            <span asp-validation-for="DoctorId" class="text-danger"></span>
+                            <div class="form-text">Leave blank and the clinic will assign a doctor for you.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="4" placeholder="Describe your symptoms or request"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">Request Appointment</button>
+                            <a asp-action="Dashboard" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

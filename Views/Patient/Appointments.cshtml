@@ -1,0 +1,62 @@
+@model IEnumerable<optical_care_management_system.Models.Appointment>
+
+@{
+    ViewData["Title"] = "My Appointments";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary"><i class="bi bi-calendar3"></i> My Appointments</h2>
+        <a asp-controller="Patient" asp-action="BookAppointment" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Book New Appointment
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Time Slot</th>
+                            <th>Doctor</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var app in Model)
+                            {
+                                // U beddelida status-ka si loo ogaado midabka
+                                string status = app.Status.ToString();
+                                string badgeClass = status.ToLower() switch
+                                {
+                                    "confirmed" => "bg-success",
+                                    "cancelled" => "bg-danger",
+                                    _ => "bg-warning" // Default (Pending)
+                                };
+
+                                <tr>
+                                    <td>@app.AppointmentDate.ToString("dd/MM/yyyy")</td>
+                                    <td>@app.TimeSlot</td>
+                                    <td>Dr. @(app.Doctor?.FullName ?? "Not Assigned")</td>
+                                    <td>
+                                        <span class="badge @badgeClass text-white p-2">@status</span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">You have no appointments registered.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,70 @@
+@model IEnumerable<optical_care_management_system.Models.Prescription>
+
+@{
+    ViewData["Title"] = "My Prescriptions";
+    var prescriptions = Model?.ToList() ?? new List<optical_care_management_system.Models.Prescription>();
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2>My Prescriptions</h2>
+            <p class="text-muted mb-0">@prescriptions.Count prescription(s) on record.</p>
+        </div>
+        <a asp-controller="Patient" asp-action="Dashboard" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Doctor</th>
+                            <th>Lens Type</th>
+                            <th>Left Eye</th>
+                            <th>Right Eye</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!prescriptions.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    No prescriptions yet. They appear here once your doctor issues one.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var item in prescriptions)
+                        {
+                            <tr>
+                                <td>@item.PrescriptionDate.ToString("dd/MM/yyyy")</td>
+                                <td>@(item.Doctor?.FullName ?? "-")</td>
+                                <td>@item.LensType</td>
+                                <td>@item.LeftEye</td>
+                                <td>@item.RightEye</td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>@item.Notes</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

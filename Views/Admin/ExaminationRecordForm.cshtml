@@ -1,0 +1,84 @@
+@model optical_care_management_system.Models.ExaminationRecord
+
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Add Examination Record" : "Edit Examination Record";
+}
+
+<div class="container mt-4">
+
+    <h2>@ViewData["Title"]</h2>
+
+    <form asp-action="ExaminationRecordForm" method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="Id" type="hidden" />
+
+        <div class="mb-3">
+            <label>Patient</label>
+            <select asp-for="PatientId" asp-items="ViewBag.Patients" class="form-select">
+                <option value="">-- Select Patient --</option>
+            </select>
+        </div>
+
+        
+<div class="mb-3">
+    <label asp-for="DoctorId" class="form-label">Doctor</label>
+
+    <select asp-for="DoctorId"
+            asp-items="ViewBag.Doctors"
+            class="form-select">
+
+        <option value="">-- Select Doctor --</option>
+
+    </select>
+
+    <span asp-validation-for="DoctorId" class="text-danger"></span>
+</div>
+        <div class="mb-3">
+            <label asp-for="ExamDate"></label>
+            <input asp-for="ExamDate" type="date" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="LeftEye"></label>
+            <input asp-for="LeftEye" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="RightEye"></label>
+            <input asp-for="RightEye" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="VisualAcuity"></label>
+            <input asp-for="VisualAcuity" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="EyePressure"></label>
+            <input asp-for="EyePressure" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Notes"></label>
+            <textarea asp-for="Notes" class="form-control" rows="4"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Save
+        </button>
+
+        <a asp-action="ExaminationRecords" class="btn btn-secondary">
+            Cancel
+        </a>
+
+    </form>
+
+</div>
+
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

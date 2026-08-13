@@ -1,0 +1,113 @@
+@model IEnumerable<optical_care_management_system.Models.FrameBooking>
+
+@{
+    ViewData["Title"] = "My Frame Bookings";
+    var bookings = Model?.ToList() ?? new List<optical_care_management_system.Models.FrameBooking>();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/frames.css" asp-append-version="true" />
+}
+
+<div class="container mt-4 mb-5">
+
+    @if (TempData["Success"] is not null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa fa-circle-check me-1"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="mb-0">My Frame Bookings</h2>
+            <p class="text-muted mb-0">@bookings.Count booking(s)</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-primary">
+                <i class="fa fa-glasses"></i> Browse Frames
+            </a>
+            <a asp-controller="Patient" asp-action="Dashboard" class="btn btn-outline-secondary">
+                <i class="fa fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    @if (!bookings.Any())
+    {
+        <div class="frames-empty">
+            <i class="fa-solid fa-glasses"></i>
+            <h5>No bookings yet</h5>
+            <p class="mb-3">Browse the catalogue and reserve a frame you like.</p>
+            <a asp-action="Index" class="btn btn-primary">Browse Frames</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var booking in bookings)
+            {
+                var frame = booking.Frame;
+                var image = string.IsNullOrWhiteSpace(frame?.ImageUrl) ? "default-frame.svg" : frame!.ImageUrl;
+
+                var (badgeClass, badgeIcon) = booking.Status switch
+                {
+                    "Approved" => ("bg-success", "fa-circle-check"),
+                    "Collected" => ("bg-primary", "fa-box-open"),
+                    "Canceled" => ("bg-secondary", "fa-circle-xmark"),
+                    _ => ("bg-warning text-dark", "fa-clock")
+                };
+
+                <div class="col-12">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="row align-items-center g-3">
+
+                                <div class="col-auto">
+                                    <div class="frame-image rounded" style="width:150px;aspect-ratio:16/10;padding:.5rem;">
+                                        <img src="~/images/frames/@image" alt="@(frame?.Name ?? "Frame")"
+                                             onerror="this.onerror=null;this.src='/images/frames/default-frame.svg';" />
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <h5 class="mb-1">@(frame?.Name ?? "Frame removed")</h5>
+                                    <p class="text-primary fw-semibold mb-1">@(frame?.Brand ?? "-")</p>
+                                    <div class="text-muted small">
+                                        Booked @booking.BookingDate.ToString("dd MMM yyyy, HH:mm")
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(booking.Notes))
+                                    {
+                                        <div class="text-muted small mt-1">
+                                            <i class="fa fa-note-sticky me-1"></i>@booking.Notes
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="col-auto text-end">
+                                    <div class="fs-5 fw-bold mb-2">@(frame is null ? "-" : frame.Price.ToString("C"))</div>
+                                    <span class="badge @badgeClass mb-2">
+                                        <i class="fa @badgeIcon me-1"></i>@booking.Status
+                                    </span>
+
+                                    @if (booking.Status == "Pending")
+                                    {
+                                        <form asp-action="CancelBooking" asp-route-id="@booking.Id" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Cancel this booking?')">
+                                                <i class="fa fa-xmark"></i> Cancel
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,61 @@
+@model IEnumerable<optical_care_management_system.Models.ExaminationRecord>
+
+@{
+    ViewData["Title"] = "My Examination Results";
+    var records = Model?.ToList() ?? new List<optical_care_management_system.Models.ExaminationRecord>();
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2>My Examination Results</h2>
+            <p class="text-muted mb-0">@records.Count result(s) on record.</p>
+        </div>
+        <a asp-controller="Patient" asp-action="Dashboard" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Exam Date</th>
+                            <th>Doctor</th>
+                            <th>Left Eye</th>
+                            <th>Right Eye</th>
+                            <th>Visual Acuity</th>
+                            <th>Eye Pressure</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!records.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    No examination results yet. Results appear here after your eye exam.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var record in records)
+                        {
+                            <tr>
+                                <td>@record.ExamDate.ToString("dd MMM yyyy")</td>
+                                <td>@(record.Doctor?.FullName ?? "-")</td>
+                                <td>@record.LeftEye</td>
+                                <td>@record.RightEye</td>
+                                <td>@record.VisualAcuity</td>
+                                <td>@record.EyePressure</td>
+                                <td>@record.Notes</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

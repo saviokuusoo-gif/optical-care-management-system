@@ -1,0 +1,32 @@
+@*
+    Shared Print / Export toolbar for admin record lists.
+
+    Usage:
+        @await Html.PartialAsync("_RecordToolbar", new RecordToolbarModel
+        {
+            Title = "Patients Report",
+            ExportAction = "ExportPatients"
+        })
+*@
+@model optical_care_management_system.Models.RecordToolbarModel
+
+<div class="d-flex gap-2 no-print">
+    <a asp-action="@Model.ExportAction" class="btn btn-success">
+        <i class="fa fa-file-excel"></i> Export to Excel
+    </a>
+    <button type="button" class="btn btn-outline-dark" onclick="window.print()">
+        <i class="fa fa-print"></i> Print
+    </button>
+</div>
+
+@* Printed page header - hidden on screen, shown on paper. *@
+<div class="print-header print-only">
+    <h2>Optical Care Management System</h2>
+    <div class="print-meta">
+        @Model.Title &middot; Generated @DateTime.Now.ToString("dd MMM yyyy HH:mm")
+        @if (Model.RecordCount is not null)
+        {
+            <text>&middot; @Model.RecordCount record(s)</text>
+        }
+    </div>
+</div>

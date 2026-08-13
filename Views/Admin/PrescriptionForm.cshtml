@@ -1,0 +1,145 @@
+@model optical_care_management_system.Models.Prescription
+
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Add Prescription" : "Edit Prescription";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">
+                @(Model.Id == 0 ? "Add New Prescription" : "Edit Prescription")
+            </h3>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="PrescriptionForm"
+                  asp-route-id="@Model.Id"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PatientId" class="form-label"></label>
+                        <select asp-for="PatientId"
+                                asp-items="ViewBag.Patients"
+                                class="form-select">
+                            <option value="">-- Select Patient --</option>
+                        </select>
+                        <span asp-validation-for="PatientId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DoctorId" class="form-label"></label>
+                        <select asp-for="DoctorId"
+                                asp-items="ViewBag.Doctors"
+                                class="form-select">
+                            <option value="">-- Select Doctor --</option>
+                        </select>
+                        <span asp-validation-for="DoctorId" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ExaminationRecordId" class="form-label"></label>
+                        <select asp-for="ExaminationRecordId"
+                                asp-items="ViewBag.ExaminationRecords"
+                                class="form-select">
+                            <option value="">-- Select Examination Record --</option>
+                        </select>
+                        <span asp-validation-for="ExaminationRecordId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PrescriptionDate" class="form-label">
+                            Prescription Date
+                        </label>
+                        <input asp-for="PrescriptionDate"
+                               type="date"
+                               class="form-control" />
+                        <span asp-validation-for="PrescriptionDate" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LensType" class="form-label">
+                            Lens Type
+                        </label>
+                        <input asp-for="LensType"
+                               class="form-control"
+                               placeholder="Enter lens type" />
+                        <span asp-validation-for="LensType" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="RightEye" class="form-label">
+                            Right Eye
+                        </label>
+                        <input asp-for="RightEye"
+                               class="form-control"
+                               placeholder="Enter right eye value" />
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LeftEye" class="form-label">
+                            Left Eye
+                        </label>
+                        <input asp-for="LeftEye"
+                               class="form-control"
+                               placeholder="Enter left eye value" />
+                    </div>
+
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Notes" class="form-label">
+                        Notes
+                    </label>
+                    <textarea asp-for="Notes"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Enter notes"></textarea>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa fa-save"></i>
+                        Save Prescription
+                    </button>
+
+                    <a asp-action="Prescriptions" class="btn btn-secondary">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

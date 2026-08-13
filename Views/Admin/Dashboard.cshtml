@@ -1,0 +1,268 @@
+@model DashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="admin-dashboard-shell">
+    <aside class="admin-sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="bi bi-eye"></i></div>
+            <div>
+                <h4>Optical Care</h4>
+                <p>Admin Console</p>
+            </div>
+        </div>
+
+        <nav class="nav-list">
+            <a class="nav-link-admin active" asp-controller="Admin" asp-action="Dashboard"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+            <a class="nav-link-admin" asp-controller="Admin" asp-action="Patients"><i class="bi bi-people"></i><span>Patients</span></a>
+            <a class="nav-link-admin" asp-controller="Admin" asp-action="Doctors"><i class="bi bi-person-badge"></i><span>Doctors</span></a>
+            <a class="nav-link-admin" asp-controller="Admin" asp-action="Appointments"><i class="bi bi-calendar2-week"></i><span>Appointments</span></a>
+            <a class="nav-link-admin" asp-controller="Admin" asp-action="Prescriptions"><i class="bi bi-capsule"></i><span>Prescriptions</span></a>
+            <a class="nav-link-admin" asp-controller="Admin" asp-action="Inventory"><i class="bi bi-box-seam"></i><span>Inventory</span></a>
+            <a class="nav-link-admin" asp-controller="Admin" asp-action="FrameBookings"><i class="bi bi-eyeglasses"></i><span>Frame Bookings</span></a>
+            <a class="nav-link-admin" asp-controller="Admin" asp-action="Reports"><i class="bi bi-bar-chart-line"></i><span>Reports</span></a>
+            <a class="nav-link-admin" asp-controller="Admin" asp-action="ExaminationRecords"><i class="bi bi-clipboard2-pulse"></i><span>Records</span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a class="nav-link-admin" asp-controller="Account" asp-action="Logout"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a>
+        </div>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" placeholder="Search patients, appointments, staff" />
+            </div>
+            <div class="topbar-actions">
+                <button class="icon-btn" type="button" aria-label="Notifications"><i class="bi bi-bell"></i></button>
+                <button class="icon-btn" type="button" aria-label="Messages"><i class="bi bi-chat-left-dots"></i></button>
+                <div class="user-pill">
+                    <div class="user-avatar">A</div>
+                    <div>
+                        <div class="user-name">Administrator</div>
+                        <div class="user-role">System Manager</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="welcome-card">
+            <div class="welcome-copy">
+                <span class="welcome-badge"><i class="bi bi-shield-check"></i> Care Operations Center</span>
+                <h1>Welcome back, Administrator 👋</h1>
+                <p>Manage your Optical Care Management System with clarity, speed, and confidence.</p>
+                <a asp-controller="Admin" asp-action="Patients" class="btn btn-primary btn-pill">Manage Patients</a>
+            </div>
+            <div class="welcome-illustration">
+                <svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="40" y="40" width="240" height="140" rx="24" fill="#EAF2FF" />
+                    <circle cx="118" cy="108" r="38" fill="#2563EB" opacity="0.95" />
+                    <rect x="172" y="82" width="76" height="52" rx="18" fill="#fff" />
+                    <rect x="184" y="96" width="44" height="8" rx="4" fill="#BFDBFE" />
+                    <rect x="184" y="112" width="28" height="8" rx="4" fill="#BFDBFE" />
+                    <rect x="88" y="154" width="64" height="18" rx="9" fill="#10B981" />
+                    <path d="M188 166c12-18 34-28 56-28 16 0 31 5 44 14" stroke="#2563EB" stroke-width="8" fill="none" stroke-linecap="round" />
+                </svg>
+            </div>
+        </section>
+
+        <section class="stats-grid">
+            <a class="stat-card" asp-controller="Admin" asp-action="Patients">
+                <div class="stat-head">
+                    <span class="stat-icon blue"><i class="bi bi-people"></i></span>
+                    <span class="badge-soft">Live</span>
+                </div>
+                <h3>@Model.TotalPatients</h3>
+                <p>Total Patients</p>
+                <div class="stat-growth">View all patients <i class="bi bi-arrow-right"></i></div>
+            </a>
+            <a class="stat-card" asp-controller="Admin" asp-action="Appointments">
+                <div class="stat-head">
+                    <span class="stat-icon green"><i class="bi bi-calendar2-week"></i></span>
+                    <span class="badge-soft">Today</span>
+                </div>
+                <h3>@Model.TodayAppointments</h3>
+                <p>Today's Appointments</p>
+                <div class="stat-growth">View schedule <i class="bi bi-arrow-right"></i></div>
+            </a>
+            <a class="stat-card" asp-controller="Admin" asp-action="Inventory">
+                <div class="stat-head">
+                    <span class="stat-icon orange"><i class="bi bi-box-seam"></i></span>
+                    <span class="badge-soft">Low stock</span>
+                </div>
+                <h3>@Model.LowInventoryItems</h3>
+                <p>Low Stock Items</p>
+                <div class="stat-growth">Manage inventory <i class="bi bi-arrow-right"></i></div>
+            </a>
+            <a class="stat-card" asp-controller="Admin" asp-action="Doctors">
+                <div class="stat-head">
+                    <span class="stat-icon gray"><i class="bi bi-person-workspace"></i></span>
+                    <span class="badge-soft">Active</span>
+                </div>
+                <h3>@Model.ActiveDoctors</h3>
+                <p>Doctors</p>
+                <div class="stat-growth">Manage doctors <i class="bi bi-arrow-right"></i></div>
+            </a>
+        </section>
+
+        <section class="quick-actions-grid">
+            <a class="quick-action-card" asp-controller="Admin" asp-action="Patients">
+                <div class="quick-action-icon blue"><i class="bi bi-person-plus"></i></div>
+                <h4>Manage Patients</h4>
+                <p>Review records and patient activity.</p>
+            </a>
+            <a class="quick-action-card" asp-controller="Admin" asp-action="Appointments">
+                <div class="quick-action-icon green"><i class="bi bi-calendar2-check"></i></div>
+                <h4>Review Appointments</h4>
+                <p>Monitor upcoming visits and confirmations.</p>
+            </a>
+            <a class="quick-action-card" asp-controller="Admin" asp-action="Inventory">
+                <div class="quick-action-icon orange"><i class="bi bi-box2-heart"></i></div>
+                <h4>Manage Inventory</h4>
+                <p>Track frames, lenses, and stock levels.</p>
+            </a>
+            <a class="quick-action-card" asp-controller="Admin" asp-action="Doctors">
+                <div class="quick-action-icon gray"><i class="bi bi-person-gear"></i></div>
+                <h4>Manage Staff</h4>
+                <p>Keep doctors and support roles aligned.</p>
+            </a>
+            <a class="quick-action-card" asp-controller="Admin" asp-action="Reports">
+                <div class="quick-action-icon purple"><i class="bi bi-file-earmark-bar-graph"></i></div>
+                <h4>Generate Reports</h4>
+                <p>Create performance and clinical summaries.</p>
+            </a>
+            <a class="quick-action-card" asp-controller="Admin" asp-action="FrameBookings">
+                <div class="quick-action-icon blue"><i class="bi bi-eyeglasses"></i></div>
+                <h4>Frame Bookings</h4>
+                <p>Review and confirm frames reserved by patients.</p>
+            </a>
+        </section>
+
+        <section class="dashboard-grid">
+            <div class="panel-card">
+                <div class="panel-title">
+                    <h3>System Activity</h3>
+                    <span class="badge-soft">Live</span>
+                </div>
+                <div class="timeline-list">
+                    <div class="timeline-item">
+                        <span class="timeline-dot blue"></span>
+                        <div class="timeline-content">
+                            <strong>New appointment booked</strong>
+                            <p>Patient consultation scheduled for 2:00 PM.</p>
+                        </div>
+                        <span class="time-badge">10 min ago</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-dot green"></span>
+                        <div class="timeline-content">
+                            <strong>New patient registration</strong>
+                            <p>New profile added to the clinic directory.</p>
+                        </div>
+                        <span class="time-badge">34 min ago</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-dot orange"></span>
+                        <div class="timeline-content">
+                            <strong>Inventory update</strong>
+                            <p>Frames replenished in the stock room.</p>
+                        </div>
+                        <span class="time-badge">1 hr ago</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-dot gray"></span>
+                        <div class="timeline-content">
+                            <strong>Staff login activity</strong>
+                            <p>Dr. Sarah signed in from the clinic terminal.</p>
+                        </div>
+                        <span class="time-badge">2 hrs ago</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-title">
+                    <h3>System Status</h3>
+                    <span class="badge-soft">Healthy</span>
+                </div>
+                <div class="system-status-list">
+                    <div class="status-row"><span class="status-label">Server Status</span><span class="status-value">Operational</span></div>
+                    <div class="status-row"><span class="status-label">Today’s Date</span><span class="status-value">@DateTime.Now.ToString("MMMM dd, yyyy")</span></div>
+                    <div class="status-row"><span class="status-label">Current Time</span><span class="status-value">@DateTime.Now.ToString("HH:mm")</span></div>
+                    <div class="status-row"><span class="status-label">Alerts</span><span class="status-value">2 pending</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-grid mt-3">
+            <div class="panel-card">
+                <div class="panel-title">
+                    <h3>Appointment Overview</h3>
+                    <span class="badge-soft">Monthly</span>
+                </div>
+                <div class="chart-area"><canvas id="appointmentsChart"></canvas></div>
+            </div>
+            <div class="panel-card">
+                <div class="panel-title">
+                    <h3>Inventory Summary</h3>
+                    <span class="badge-soft">Balanced</span>
+                </div>
+                <div class="chart-area"><canvas id="inventoryChart"></canvas></div>
+            </div>
+        </section>
+
+        <div class="footer-bar">
+            <span>© 2026 Optical Care Management System</span>
+            <div>
+                <a href="#">Privacy Policy</a> · <a href="#">Terms & Conditions</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const appointmentsCtx = document.getElementById('appointmentsChart');
+        if (appointmentsCtx) {
+            new Chart(appointmentsCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Appointments',
+                        data: [18, 22, 20, 28, 30, 35],
+                        borderColor: '#2563EB',
+                        backgroundColor: 'rgba(37, 99, 235, 0.18)',
+                        tension: 0.35,
+                        fill: true,
+                        pointRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        const inventoryCtx = document.getElementById('inventoryChart');
+        if (inventoryCtx) {
+            new Chart(inventoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Frames', 'Lenses', 'Accessories'],
+                    datasets: [{
+                        data: [48, 32, 20],
+                        backgroundColor: ['#2563EB', '#10B981', '#F59E0B'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+    </script>
+}
+
