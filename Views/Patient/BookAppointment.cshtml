@@ -4,30 +4,42 @@
     ViewData["Title"] = "Book Appointment";
 }
 
-<div class="container mt-4">
+<div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm border">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0"><i class="bi bi-calendar-plus"></i> Book an Appointment</h4>
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden" style="border: 1px solid #e2e8f0 !important;">
+                <!-- Header with Brand Blue Gradient -->
+                <div class="card-header border-0 py-3 px-4" style="background: linear-gradient(135deg, #0F2D5C 0%, #1E88E5 100%); color: #ffffff;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 bg-white bg-opacity-25" style="width: 38px; height: 38px;">
+                            <i class="fa-solid fa-calendar-plus fs-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold text-white">Book an Appointment</h5>
+                            <small class="text-white text-opacity-75">Schedule your consultation with our optical specialists</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
+
+                <div class="card-body p-4 bg-white">
                     <form asp-controller="Patient" asp-action="BookAppointment" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                        
-
                         <!-- Doorashada Taariikhda -->
                         <div class="mb-3">
-                            <label class="form-label">Appointment Date</label>
-                            <input asp-for="AppointmentDate" type="date" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
-                            <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                            <label class="form-label fw-semibold text-dark">
+                                <i class="fa-regular fa-calendar text-primary me-1"></i> Appointment Date
+                            </label>
+                            <input asp-for="AppointmentDate" type="date" class="form-control rounded-3 py-2" min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                            <span asp-validation-for="AppointmentDate" class="text-danger small"></span>
                         </div>
 
                         <!-- Doorashada Saacada -->
                         <div class="mb-3">
-                            <label class="form-label">Preferred Time Slot</label>
-                            <select asp-for="TimeSlot" class="form-select">
+                            <label class="form-label fw-semibold text-dark">
+                                <i class="fa-regular fa-clock text-primary me-1"></i> Preferred Time Slot
+                            </label>
+                            <select asp-for="TimeSlot" class="form-select rounded-3 py-2" required>
                                 <option value="">-- Select Time --</option>
                                 <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
                                 <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
@@ -35,29 +47,37 @@
                                 <option value="02:00 PM - 03:00 PM">02:00 PM - 03:00 PM</option>
                                 <option value="03:00 PM - 04:00 PM">03:00 PM - 04:00 PM</option>
                             </select>
-                            <span asp-validation-for="TimeSlot" class="text-danger"></span>
+                            <span asp-validation-for="TimeSlot" class="text-danger small"></span>
                         </div>
 
                         <!-- Doorashada Dhakhtarka -->
                         <div class="mb-3">
-                            <label class="form-label">Preferred Doctor <span class="text-muted">(optional)</span></label>
-                            <select asp-for="DoctorId" class="form-select"
+                            <label class="form-label fw-semibold text-dark">
+                                <i class="fa-solid fa-user-doctor text-primary me-1"></i> Preferred Doctor <span class="text-muted fw-normal small">(optional)</span>
+                            </label>
+                            <select asp-for="DoctorId" class="form-select rounded-3 py-2"
                                     asp-items="@(ViewBag.Doctors as SelectList)">
                                 <option value="">-- No preference --</option>
                             </select>
-                            <span asp-validation-for="DoctorId" class="text-danger"></span>
-                            <div class="form-text">Leave blank and the clinic will assign a doctor for you.</div>
+                            <span asp-validation-for="DoctorId" class="text-danger small"></span>
+                            <div class="form-text text-muted small"><i class="fa-solid fa-circle-info text-info me-1"></i> Leave blank and the clinic will assign a doctor for you.</div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Notes</label>
-                            <textarea asp-for="Notes" class="form-control" rows="4" placeholder="Describe your symptoms or request"></textarea>
-                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-dark">
+                                <i class="fa-regular fa-message text-primary me-1"></i> Notes
+                            </label>
+                            <textarea asp-for="Notes" class="form-control rounded-3" rows="3" placeholder="Describe your symptoms or request"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger small"></span>
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg">Request Appointment</button>
-                            <a asp-action="Dashboard" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm py-2" style="background: linear-gradient(135deg, #1E88E5 0%, #0F2D5C 100%); border: none;">
+                                <i class="fa-solid fa-calendar-check me-1"></i> Request Appointment
+                            </button>
+                            <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill py-2 fw-semibold">
+                                Cancel
+                            </a>
                         </div>
                     </form>
                 </div>

@@ -79,7 +79,12 @@ public class AccountController : Controller
             return Redirect(returnUrl);
         }
 
-        return RedirectToAction(user.Role == UserRole.Admin ? "Dashboard" : "Dashboard", user.Role == UserRole.Admin ? "Admin" : "Patient");
+        return user.Role switch
+        {
+            UserRole.Admin => RedirectToAction("Dashboard", "Admin"),
+            UserRole.Doctor => RedirectToAction("Dashboard", "Doctor"),
+            _ => RedirectToAction("Dashboard", "Patient")
+        };
     }
 
     [HttpGet]

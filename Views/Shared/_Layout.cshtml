@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -20,146 +20,434 @@
         :root {
             --brand-blue: #0F2D5C;
             --brand-sky: #1E88E5;
-            --brand-accent: #F5F7FA;
+            --brand-cyan: #00bcd4;
+            --brand-accent: #F4F7FB;
             --card-bg: #ffffff;
-            --text-muted: #65748b;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
         }
 
         body {
             font-family: 'Poppins', sans-serif;
             background-color: var(--brand-accent);
-            color: #1f2937;
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* Top Navbar */
         .navbar-custom {
-            background: linear-gradient(135deg, #0F2D5C 0%, #13396C 100%);
+            background: linear-gradient(135deg, #081B36 0%, #0F2D5C 50%, #173E78 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 0.75rem 1rem;
         }
 
-        .navbar-custom .nav-link,
-        .navbar-custom .navbar-brand,
-        .navbar-custom .form-control {
+        .brand-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #1E88E5 0%, #00bcd4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.35);
+        }
+
+        .brand-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+            line-height: 1.1;
+        }
+
+        .brand-subtitle {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #7dd3fc;
+            letter-spacing: 1.5px;
+        }
+
+        .nav-pill-link {
+            color: rgba(255, 255, 255, 0.85) !important;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 50rem;
+            transition: all 0.2s ease;
+        }
+
+        .nav-pill-link:hover, .nav-pill-link:focus, .nav-pill-link.active {
             color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.12);
         }
 
-        .navbar-custom .nav-link:hover,
-        .navbar-custom .navbar-brand:hover,
-        .navbar-custom .btn-link:hover {
-            color: #cbd5e1 !important;
+        /* Search input in Navbar */
+        .navbar-search-box {
+            position: relative;
+            min-width: 240px;
         }
 
-        .navbar-custom .form-control {
-            background: rgba(255,255,255,0.12);
-            border: none;
+        .navbar-search-box .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        .navbar-search-box input {
+            background: rgba(255, 255, 255, 0.12) !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            border-radius: 50rem !important;
+            padding-left: 36px !important;
+            padding-right: 14px !important;
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
+            color: #ffffff !important;
+            font-size: 0.85rem;
+            transition: all 0.25s ease;
+        }
+
+        .navbar-search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.65) !important;
+        }
+
+        .navbar-search-box input:focus {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
+        }
+
+        /* User Profile Pill */
+        .user-nav-pill {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50rem;
+            padding: 4px 12px 4px 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff !important;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .user-nav-pill:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .user-nav-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.75rem;
             color: #ffffff;
         }
 
-        .navbar-custom .form-control::placeholder {
-            color: rgba(255,255,255,0.72);
+        .dropdown-menu-modern {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem;
+            background: #ffffff;
         }
 
-        .navbar-custom .form-control:focus {
-            box-shadow: 0 0 0 0.15rem rgba(30,136,229,0.26);
+        .dropdown-menu-modern .dropdown-item {
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #334155;
+            transition: all 0.15s ease;
+        }
+
+        .dropdown-menu-modern .dropdown-item:hover {
+            background-color: #f1f5f9;
+            color: #0284c7;
         }
     </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="fa-solid fa-glasses fa-lg me-2"></i>
-                    <span class="fw-semibold">Optical Care</span>
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+            <div class="container-fluid px-lg-4">
+                <!-- Brand -->
+                <a class="navbar-brand d-flex align-items-center gap-2 text-decoration-none" asp-area="" asp-controller="Home" asp-action="Index">
+                    <div class="brand-icon-box">
+                        <i class="fa-solid fa-glasses"></i>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <span class="brand-title">Optical Care</span>
+                        <span class="brand-subtitle">VISION & EYEWEAR</span>
+                    </div>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar"
+
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav align-items-center me-auto">
+                    <!-- Nav Links -->
+                    <ul class="navbar-nav align-items-center me-auto ms-lg-3 gap-1">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link nav-pill-link" asp-controller="Home" asp-action="Index">
+                                <i class="fa-solid fa-house me-1 opacity-75"></i> Home
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Frames" asp-action="Index">Frames</a>
+                            <a class="nav-link nav-pill-link" asp-controller="Frames" asp-action="Index">
+                                <i class="fa-solid fa-glasses me-1 opacity-75"></i> Eyewear Frames
+                            </a>
                         </li>
+
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Admin Panel
+                                    <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa-solid fa-shield-halved me-1 text-warning"></i> Admin Panel
                                     </a>
-                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminDropdown">
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Patients">Patients</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Doctors">Doctors</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Appointments">Appointments</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="ExaminationRecords">Examination Records</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Prescriptions">Prescriptions</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Inventory">Inventory</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="FrameBookings">Frame Bookings</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Reports">Reports</a></li>
+                                    <ul class="dropdown-menu dropdown-menu-modern shadow-lg" aria-labelledby="adminDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard"><i class="fa-solid fa-gauge text-primary me-2"></i>Dashboard</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Patients"><i class="fa-solid fa-hospital-user text-info me-2"></i>Patients Directory</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Doctors"><i class="fa-solid fa-user-doctor text-success me-2"></i>Doctors Management</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Appointments"><i class="fa-solid fa-calendar-check text-warning me-2"></i>Appointments</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="ExaminationRecords"><i class="fa-solid fa-eye text-primary me-2"></i>Examination Records</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Prescriptions"><i class="fa-solid fa-file-prescription text-success me-2"></i>Prescriptions</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Inventory"><i class="fa-solid fa-boxes-stacked text-secondary me-2"></i>Inventory Stock</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="FrameBookings"><i class="fa-solid fa-glasses text-danger me-2"></i>Frame Bookings</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Reports"><i class="fa-solid fa-chart-pie text-purple me-2"></i>Reports & Analytics</a></li>
+                                    </ul>
+                                </li>
+                            }
+                            else if (User.IsInRole("Doctor"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link nav-pill-link dropdown-toggle" href="#" id="doctorDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa-solid fa-user-doctor me-1 text-info"></i> Doctor Portal
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-modern shadow-lg" aria-labelledby="doctorDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Doctor" asp-action="Dashboard"><i class="fa-solid fa-gauge text-primary me-2"></i>Doctor Dashboard</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Doctor" asp-action="Appointments"><i class="fa-solid fa-calendar-check text-warning me-2"></i>My Appointments</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Doctor" asp-action="ExaminationRecords"><i class="fa-solid fa-eye text-info me-2"></i>Eye Examinations</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Doctor" asp-action="Prescriptions"><i class="fa-solid fa-file-prescription text-success me-2"></i>Prescriptions</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Doctor" asp-action="Patients"><i class="fa-solid fa-hospital-user text-primary me-2"></i>My Patients</a></li>
                                     </ul>
                                 </li>
                             }
                             else if (User.IsInRole("Patient"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Patient" asp-action="Dashboard">My Dashboard</a>
+                                    <a class="nav-link nav-pill-link" asp-controller="Patient" asp-action="Dashboard">
+                                        <i class="fa-solid fa-house-user me-1 opacity-75"></i> My Dashboard
+                                    </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Frames" asp-action="MyBookings">My Frame Bookings</a>
+                                    <a class="nav-link nav-pill-link" asp-controller="Patient" asp-action="BookAppointment">
+                                        <i class="fa-solid fa-calendar-plus me-1 opacity-75"></i> Book Appointment
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link nav-pill-link" asp-controller="Frames" asp-action="MyBookings">
+                                        <i class="fa-solid fa-bookmark me-1 opacity-75"></i> My Frame Bookings
+                                    </a>
                                 </li>
                             }
                         }
                     </ul>
-                    <form class="d-flex align-items-center mb-3 mb-lg-0 me-3" role="search" method="get" asp-controller="Frames" asp-action="Index">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-white border-0"><i class="fa-solid fa-magnifying-glass"></i></span>
-                            <input class="form-control rounded-end" type="search" name="search" placeholder="Search frames" aria-label="Search frames" />
+
+                    <!-- Search Box -->
+                    <form class="d-flex align-items-center mb-3 mb-lg-0 me-lg-3" role="search" method="get" asp-controller="Frames" asp-action="Index">
+                        <div class="navbar-search-box">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input class="form-control form-control-sm" type="search" name="search" placeholder="Search frames, brands, styles..." aria-label="Search frames" />
                         </div>
                     </form>
-                    <ul class="navbar-nav">
+
+                    <!-- Right User Pill / Auth Actions -->
+                    <div class="d-flex align-items-center gap-2">
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-link nav-link text-white p-0">Logout</button>
-                                </form>
-                            </li>
+                            var userName = User.Identity.Name ?? "User";
+                            var userRole = User.IsInRole("Admin") ? "Admin" : User.IsInRole("Doctor") ? "Doctor" : "Patient";
+                            var avatarInitial = string.IsNullOrWhiteSpace(userName) ? "U" : userName.Substring(0, 1).ToUpper();
+
+                            <div class="dropdown">
+                                <a class="user-nav-pill dropdown-toggle" href="#" id="userProfileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="user-nav-avatar">@avatarInitial</div>
+                                    <div class="d-none d-sm-block text-start">
+                                        <div class="fw-semibold text-white small" style="line-height: 1.1;">@userName</div>
+                                        <span class="badge @(userRole == "Admin" ? "bg-warning text-dark" : userRole == "Doctor" ? "bg-info text-dark" : "bg-success text-white")" style="font-size: 0.65rem; padding: 2px 6px;">
+                                            @userRole
+                                        </span>
+                                    </div>
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-modern dropdown-menu-end shadow-lg" aria-labelledby="userProfileDropdown">
+                                    <li class="px-3 py-2 border-bottom">
+                                        <div class="fw-bold text-dark">@userName</div>
+                                        <small class="text-muted">Logged in as <strong>@userRole</strong></small>
+                                    </li>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li><a class="dropdown-item mt-1" asp-controller="Admin" asp-action="Dashboard"><i class="fa-solid fa-gauge text-primary me-2"></i>Admin Dashboard</a></li>
+                                    }
+                                    else if (User.IsInRole("Doctor"))
+                                    {
+                                        <li><a class="dropdown-item mt-1" asp-controller="Doctor" asp-action="Dashboard"><i class="fa-solid fa-stethoscope text-primary me-2"></i>Doctor Dashboard</a></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a class="dropdown-item mt-1" asp-controller="Patient" asp-action="Dashboard"><i class="fa-solid fa-house-user text-primary me-2"></i>My Dashboard</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Patient" asp-action="Profile"><i class="fa-solid fa-id-card text-info me-2"></i>My Profile</a></li>
+                                    }
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="px-2">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100 rounded-pill text-start ps-3">
+                                                <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Sign Out
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
                         }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-white" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-semibold">
+                                <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Sign In
+                            </a>
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm" style="background: linear-gradient(135deg, #1E88E5 0%, #00bcd4 100%); border: none;">
+                                <i class="fa-solid fa-user-plus me-1"></i> Register
+                            </a>
                         }
-                    </ul>
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
+
+    @if (ViewData["FullWidth"] as bool? == true)
+    {
         @if (TempData["Error"] is not null)
         {
-            <div class="alert alert-danger alert-dismissible fade show no-print mt-3" role="alert">
-                <i class="fa fa-triangle-exclamation me-1"></i> @TempData["Error"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="container mt-3">
+                <div class="alert alert-danger alert-dismissible fade show no-print" role="alert">
+                    <i class="fa fa-triangle-exclamation me-1"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             </div>
         }
-        <main role="main" class="pb-3">
+        <main role="main">
             @RenderBody()
         </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
+    }
+    else
+    {
         <div class="container">
-            &copy; 2026 - optical_care_management_system - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            @if (TempData["Error"] is not null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show no-print mt-3" role="alert">
+                    <i class="fa fa-triangle-exclamation me-1"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+    }
+
+    <!-- Modern Clinic Footer -->
+    <footer class="bg-dark text-white pt-5 pb-4 mt-5 no-print" style="background: linear-gradient(180deg, #0b1f3f 0%, #061124 100%);">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <!-- Brand Info -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa-solid fa-glasses fa-2x text-info me-2"></i>
+                        <h4 class="fw-bold mb-0 text-white">Optical Care</h4>
+                    </div>
+                    <p class="text-white-50 small mb-3">
+                        Your trusted clinic for comprehensive vision exams, advanced ocular health diagnostics, and handcrafted luxury prescription eyewear.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a href="#" class="btn btn-sm btn-outline-light rounded-circle px-2" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="btn btn-sm btn-outline-light rounded-circle px-2" title="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="btn btn-sm btn-outline-light rounded-circle px-2" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="btn btn-sm btn-outline-light rounded-circle px-2" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="fw-bold text-uppercase text-info mb-3">Quick Links</h6>
+                    <ul class="list-unstyled text-white-50 small d-flex flex-column gap-2 mb-0">
+                        <li><a asp-controller="Home" asp-action="Index" class="text-white-50 text-decoration-none hover-white">Home</a></li>
+                        <li><a asp-controller="Frames" asp-action="Index" class="text-white-50 text-decoration-none hover-white">Frames Collection</a></li>
+                        <li><a asp-controller="Patient" asp-action="BookAppointment" class="text-white-50 text-decoration-none hover-white">Book Appointment</a></li>
+                        <li><a asp-controller="Account" asp-action="Login" class="text-white-50 text-decoration-none hover-white">Patient Portal</a></li>
+                    </ul>
+                </div>
+
+                <!-- Services -->
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-uppercase text-info mb-3">Our Services</h6>
+                    <ul class="list-unstyled text-white-50 small d-flex flex-column gap-2 mb-0">
+                        <li><i class="fa fa-angle-right text-info me-1"></i> Comprehensive Eye Exam</li>
+                        <li><i class="fa fa-angle-right text-info me-1"></i> Retinal & Pressure Testing</li>
+                        <li><i class="fa fa-angle-right text-info me-1"></i> Anti-Blue Light Lenses</li>
+                        <li><i class="fa fa-angle-right text-info me-1"></i> Designer Frame Fitting</li>
+                        <li><i class="fa fa-angle-right text-info me-1"></i> Pediatric Vision Care</li>
+                    </ul>
+                </div>
+
+                <!-- Contact & Clinic Hours -->
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-uppercase text-info mb-3">Clinic Contact</h6>
+                    <div class="text-white-50 small d-flex flex-column gap-2">
+                        <div><i class="fa fa-location-dot text-info me-2"></i>Meereysane Road, Puntland, Somalia</div>
+                        <div><i class="fa fa-phone text-info me-2"></i>+252 906786218</div>
+                        <div><i class="fa fa-envelope text-info me-2"></i>contact@opticalcare.com</div>
+                        <div class="mt-2 pt-2 border-top border-secondary">
+                            <span class="text-white fw-semibold d-block"><i class="fa fa-clock text-info me-2"></i>Opening Hours:</span>
+                            <span>Sat - Thu: 8:00 AM - 8:00 PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-secondary my-3" />
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 small text-white-50">
+                <div>&copy; 2026 <strong>Optical Care Management System</strong>. All rights reserved.</div>
+                <div>
+                    <a asp-controller="Home" asp-action="Privacy" class="text-white-50 text-decoration-none me-3">Privacy Policy</a>
+                    <a href="#" class="text-white-50 text-decoration-none">Terms of Service</a>
+                </div>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

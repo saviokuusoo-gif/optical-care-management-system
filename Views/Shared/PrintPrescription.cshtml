@@ -1,0 +1,284 @@
+@model optical_care_management_system.Models.Prescription
+
+@{
+    ViewData["Title"] = $"Prescription Slip - {Model.Patient?.FullName ?? "Patient"} (#RX-{Model.Id:D4})";
+    Layout = null; // Clean standalone printable page
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            padding: 20px;
+        }
+
+        .prescription-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .clinic-header {
+            border-bottom: 2px solid #0F2D5C;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .clinic-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #0F2D5C;
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .rx-symbol {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #0F2D5C;
+            font-style: italic;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .info-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .table-rx {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+
+        .table-rx th {
+            background-color: #0F2D5C;
+            color: #ffffff;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .table-rx td {
+            border: 1px solid #cbd5e1;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 1px solid #94a3b8;
+            width: 220px;
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .stamp-box {
+            width: 130px;
+            height: 80px;
+            border: 2px dashed #94a3b8;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        @@media print {
+            body {
+                background-color: #ffffff;
+                padding: 0;
+            }
+            .prescription-container {
+                box-shadow: none;
+                border: none;
+                padding: 20px 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Action Toolbar (Hidden on Print) -->
+    <div class="max-w-800 mx-auto mb-4 d-flex justify-content-between align-items-center no-print" style="max-width: 800px;">
+        <button onclick="window.history.back()" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="fa fa-arrow-left me-1"></i> Back
+        </button>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                <i class="fa fa-print me-1"></i> Print Official Prescription Slip
+            </button>
+        </div>
+    </div>
+
+    <!-- Official Prescription Slip -->
+    <div class="prescription-container">
+        <!-- Clinic Header -->
+        <div class="clinic-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="clinic-logo">
+                    <i class="fa-solid fa-glasses"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0 text-dark" style="color: #0F2D5C !important;">Optical Care Eye Clinic</h3>
+                    <div class="text-muted small">Specialist Optometry & Comprehensive Eye Diagnostics</div>
+                </div>
+            </div>
+            <div class="text-end small text-muted">
+                <div><i class="fa fa-location-dot me-1"></i>Meereysane Road, Puntland, Somalia</div>
+                <div><i class="fa fa-phone me-1"></i>+252 906786218 &bull; info@opticalcare.com</div>
+            </div>
+        </div>
+
+        <!-- Document Title & Rx Number -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="rx-symbol">℞ Medical Prescription Slip</div>
+            <div class="text-end">
+                <span class="badge bg-light text-dark border px-3 py-2 fs-6">
+                    Rx No: <strong>#RX-@Model.Id.ToString("D4")</strong>
+                </span>
+                <div class="small text-muted mt-1">Date: @Model.PrescriptionDate.ToString("dd MMM yyyy")</div>
+            </div>
+        </div>
+
+        <!-- Patient & Doctor Information Box -->
+        <div class="info-box">
+            <div class="row g-3">
+                <div class="col-md-6 border-end">
+                    <h6 class="fw-bold text-uppercase small text-muted mb-2"><i class="fa fa-user me-1 text-primary"></i> Patient Information</h6>
+                    <div><strong>Full Name:</strong> @(Model.Patient?.FullName ?? "-")</div>
+                    <div><strong>Patient ID:</strong> #@(Model.PatientId)</div>
+                    <div><strong>Phone:</strong> @(Model.Patient?.Phone ?? "-")</div>
+                    <div><strong>Gender:</strong> @(Model.Patient?.Gender ?? "-") &bull; <strong>DOB:</strong> @(Model.Patient?.DateOfBirth.HasValue == true ? Model.Patient.DateOfBirth.Value.ToString("dd/MM/yyyy") : "-")</div>
+                </div>
+                <div class="col-md-6 ps-md-4">
+                    <h6 class="fw-bold text-uppercase small text-muted mb-2"><i class="fa fa-user-doctor me-1 text-info"></i> Attending Optometrist / Doctor</h6>
+                    <div><strong>Doctor Name:</strong> Dr. @(Model.Doctor?.FullName ?? "-")</div>
+                    <div><strong>Specialty:</strong> @(Model.Doctor?.Specialty ?? "Optometry")</div>
+                    <div><strong>License No:</strong> @(Model.Doctor?.LicenseNumber ?? "-")</div>
+                    <div><strong>Contact:</strong> @(Model.Doctor?.Phone ?? "-")</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clinical Eye Refraction Measurements (Cabbirka Indhaha) -->
+        @if (Model.ExaminationRecord != null)
+        {
+            <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-microscope text-primary me-1"></i> Eye Examination Measurements (Cabbirka)</h6>
+            <table class="table-rx">
+                <thead>
+                    <tr>
+                        <th>Eye</th>
+                        <th>Refraction / Power</th>
+                        <th>Visual Acuity</th>
+                        <th>Eye Pressure (IOP)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="fw-bold">Right Eye (OD)</td>
+                        <td><code>@Model.ExaminationRecord.RightEye</code></td>
+                        <td><span class="badge bg-light text-dark border">@Model.ExaminationRecord.VisualAcuity</span></td>
+                        <td><span class="badge bg-light text-dark border">@Model.ExaminationRecord.EyePressure</span></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Left Eye (OS)</td>
+                        <td><code>@Model.ExaminationRecord.LeftEye</code></td>
+                        <td><span class="badge bg-light text-dark border">@Model.ExaminationRecord.VisualAcuity</span></td>
+                        <td><span class="badge bg-light text-dark border">@Model.ExaminationRecord.EyePressure</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+
+        <!-- Prescribed Optical Lenses -->
+        <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-glasses text-success me-1"></i> Prescribed Eyewear & Corrective Lenses</h6>
+        <table class="table-rx">
+            <thead>
+                <tr>
+                    <th>Prescribed Lens Type</th>
+                    <th>Right Eye (OD)</th>
+                    <th>Left Eye (OS)</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="fw-bold text-primary">@Model.LensType</td>
+                    <td class="fs-6 fw-semibold">@Model.RightEye</td>
+                    <td class="fs-6 fw-semibold">@Model.LeftEye</td>
+                    <td>
+                        <span class="badge @(Model.IsActive ? "bg-success" : "bg-secondary")">
+                            @(Model.IsActive ? "Valid / Active" : "Archived")
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Prescribed Medications & Treatment Instructions (Daawada & Talooyinka) -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-prescription-bottle-medical text-danger me-1"></i> Prescribed Medication, Eye Drops & Clinical Advice</h6>
+            <div class="p-3 rounded-3 border bg-light">
+                @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                {
+                    <p class="mb-0 text-dark" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">@Model.Notes</p>
+                }
+                else
+                {
+                    <p class="text-muted mb-0 small fst-italic">Standard corrective eyewear prescription. Take breaks from digital screens every 20 minutes.</p>
+                }
+            </div>
+        </div>
+
+        <!-- Footer Sign-off & Stamp -->
+        <div class="d-flex justify-content-between align-items-end mt-5 pt-4 border-top">
+            <div>
+                <div class="stamp-box">
+                    Clinic Stamp
+                </div>
+            </div>
+            <div class="text-end">
+                <div class="signature-line">
+                    <strong>Dr. @(Model.Doctor?.FullName ?? "Optometrist")</strong>
+                    <div>Authorized Signature & Date</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center text-muted small mt-4 pt-3 border-top" style="font-size: 0.75rem;">
+            Optical Care Management System &bull; This is an official medical prescription slip. Valid for 1 year from issue date.
+        </div>
+    </div>
+
+</body>
+</html>

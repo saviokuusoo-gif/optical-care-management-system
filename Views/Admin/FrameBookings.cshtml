@@ -1,10 +1,11 @@
 @model IEnumerable<optical_care_management_system.Models.FrameBooking>
 
 @{
-    ViewData["Title"] = "Frame Bookings";
+    ViewData["Title"] = "Frame Bookings - Optical Care";
     var bookings = Model?.ToList() ?? new List<optical_care_management_system.Models.FrameBooking>();
     string? status = ViewBag.Status;
     int pendingCount = ViewBag.PendingCount ?? 0;
+    var totalBookings = bookings.Count;
 }
 
 @section Styles {
@@ -12,109 +13,125 @@
 }
 
 <div class="container mt-4 mb-5">
-
+    <!-- Flash Messages -->
     @if (TempData["Success"] is not null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fa fa-circle-check me-1"></i> @TempData["Success"]
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] is not null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 rounded-3" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i> @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-            <h2 class="mb-0">Frame Bookings</h2>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="fa-solid fa-glasses text-primary me-2"></i>Patient Frame Bookings
+            </h2>
             <p class="text-muted mb-0">
-                @bookings.Count booking(s) shown
-                @if (pendingCount > 0)
-                {
-                    <span class="badge bg-warning text-dark ms-1">@pendingCount pending</span>
-                }
+                Review frames reserved by patients for clinic try-on and purchase pickup.
             </p>
         </div>
 
-        <div class="btn-group" role="group" aria-label="Filter by status">
+        <!-- Filter Pill Group -->
+        <div class="btn-group rounded-pill shadow-sm p-1 bg-white border" role="group" aria-label="Filter by status">
             <a asp-action="FrameBookings"
-               class="btn btn-outline-primary @(string.IsNullOrEmpty(status) ? "active" : "")">All</a>
+               class="btn btn-sm rounded-pill px-3 @(string.IsNullOrEmpty(status) ? "btn-primary fw-bold" : "btn-light text-dark")">All Bookings</a>
             @foreach (var option in new[] { "Pending", "Approved", "Collected", "Canceled" })
             {
                 <a asp-action="FrameBookings" asp-route-status="@option"
-                   class="btn btn-outline-primary @(status == option ? "active" : "")">@option</a>
+                   class="btn btn-sm rounded-pill px-3 @(status == option ? "btn-primary fw-bold" : "btn-light text-dark")">@option</a>
             }
         </div>
     </div>
 
-    <div class="card shadow">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-dark">
+    <!-- Main Table Card -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: linear-gradient(135deg, #0F2D5C 0%, #163d7a 100%); color: #ffffff;">
+                    <tr>
+                        <th class="py-3 ps-4" style="width: 100px; font-weight: 600;">Eyewear</th>
+                        <th class="py-3" style="font-weight: 600;">Frame Specifications</th>
+                        <th class="py-3" style="font-weight: 600;">Patient</th>
+                        <th class="py-3 text-end" style="font-weight: 600;">Price</th>
+                        <th class="py-3" style="font-weight: 600;">Booked Date</th>
+                        <th class="py-3" style="font-weight: 600;">Status</th>
+                        <th class="py-3 pe-4 text-end no-print" style="font-weight: 600; min-width: 220px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!bookings.Any())
+                    {
                         <tr>
-                            <th style="width:110px;">Frame</th>
-                            <th>Frame Name</th>
-                            <th>Patient</th>
-                            <th class="text-end">Price</th>
-                            <th>Booked On</th>
-                            <th>Notes</th>
-                            <th>Status</th>
-                            <th class="text-end" style="width:230px;">Actions</th>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-glasses fa-3x mb-3 text-secondary d-block"></i>
+                                <h5 class="fw-bold text-dark">No Frame Bookings Found</h5>
+                                <p class="small text-muted mb-0">No patient bookings found@(string.IsNullOrEmpty(status) ? "." : $" for status '{status}'.")</p>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @if (!bookings.Any())
-                        {
-                            <tr>
-                                <td colspan="8" class="text-center text-muted py-4">
-                                    No frame bookings@(string.IsNullOrEmpty(status) ? "" : $" with status \"{status}\"") yet.
-                                </td>
-                            </tr>
-                        }
-                        @foreach (var booking in bookings)
-                        {
-                            var frame = booking.Frame;
-                            var image = string.IsNullOrWhiteSpace(frame?.ImageUrl) ? "default-frame.svg" : frame!.ImageUrl;
+                    }
+                    @foreach (var booking in bookings)
+                    {
+                        var frame = booking.Frame;
+                        var image = string.IsNullOrWhiteSpace(frame?.ImageUrl) ? "default-frame.jpg" : frame!.ImageUrl;
 
-                            var badgeClass = booking.Status switch
-                            {
-                                "Approved" => "bg-success",
-                                "Collected" => "bg-primary",
-                                "Canceled" => "bg-secondary",
-                                _ => "bg-warning text-dark"
-                            };
+                        var badgeClass = booking.Status switch
+                        {
+                            "Approved" => "bg-success text-white",
+                            "Collected" => "bg-primary text-white",
+                            "Canceled" => "bg-danger text-white",
+                            _ => "bg-warning text-dark"
+                        };
 
-                            <tr>
-                                <td>
-                                    <div class="frame-image rounded" style="width:96px;aspect-ratio:16/10;padding:.35rem;">
-                                        <img src="~/images/frames/@image" alt="@(frame?.Name ?? "Frame")"
-                                             onerror="this.onerror=null;this.src='/images/frames/default-frame.svg';" />
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="fw-semibold">@(frame?.Name ?? "Frame removed")</div>
-                                    <div class="text-muted small">@(frame?.Brand ?? "-")</div>
-                                </td>
-                                <td>
-                                    <div class="fw-semibold">@(booking.Patient?.FullName ?? "-")</div>
-                                    <div class="text-muted small">@(booking.Patient?.Phone ?? "")</div>
-                                </td>
-                                <td class="text-end">@(frame is null ? "-" : frame.Price.ToString("C"))</td>
-                                <td>@booking.BookingDate.ToString("dd MMM yyyy")</td>
-                                <td class="small text-muted">@booking.Notes</td>
-                                <td><span class="badge @badgeClass">@booking.Status</span></td>
-                                <td class="text-end">
+                        <tr>
+                            <td class="ps-4">
+                                <div class="rounded-3 overflow-hidden bg-light p-1 border text-center" style="width: 76px; height: 50px;">
+                                    <img src="~/images/frames/@image" alt="@(frame?.Name ?? "Frame")" class="img-fluid w-100 h-100 object-fit-contain"
+                                         onerror="this.onerror=null;this.src='/images/frames/default-frame.jpg';" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">@(frame?.Name ?? "Frame removed")</div>
+                                <small class="text-muted">@(frame?.Brand ?? "-") &bull; @(frame?.Material ?? "")</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">@(booking.Patient?.FullName ?? "-")</div>
+                                <small class="text-muted"><i class="fa-solid fa-phone me-1 text-success"></i>@(booking.Patient?.Phone ?? "")</small>
+                            </td>
+                            <td class="text-end">
+                                <span class="fw-bold text-primary">@(frame is null ? "-" : frame.Price.ToString("C"))</span>
+                            </td>
+                            <td>
+                                <span class="small text-dark">@booking.BookingDate.ToString("dd MMM yyyy")</span>
+                            </td>
+                            <td>
+                                <span class="badge @badgeClass px-3 py-2 rounded-pill">
+                                    @booking.Status
+                                </span>
+                            </td>
+                            <td class="pe-4 text-end no-print" style="white-space: nowrap;">
+                                <div class="d-inline-flex gap-1">
                                     @if (booking.Status == "Pending")
                                     {
                                         <form asp-action="UpdateFrameBookingStatus" asp-route-id="@booking.Id" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="status" value="Approved" />
-                                            <button type="submit" class="btn btn-sm btn-success">
-                                                <i class="fa fa-check"></i> Approve
+                                            <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold action-btn">
+                                                <i class="fa fa-check me-1"></i> Approve
                                             </button>
                                         </form>
                                         <form asp-action="UpdateFrameBookingStatus" asp-route-id="@booking.Id" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="status" value="Canceled" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 action-btn"
                                                     onclick="return confirm('Cancel this booking?')">
                                                 <i class="fa fa-xmark"></i>
                                             </button>
@@ -125,25 +142,30 @@
                                         <form asp-action="UpdateFrameBookingStatus" asp-route-id="@booking.Id" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="status" value="Collected" />
-                                            <button type="submit" class="btn btn-sm btn-primary">
-                                                <i class="fa fa-box-open"></i> Mark Collected
+                                            <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold action-btn">
+                                                <i class="fa fa-box-open me-1"></i> Collected
                                             </button>
                                         </form>
                                     }
 
                                     <form asp-action="DeleteFrameBooking" asp-route-id="@booking.Id" method="post" class="d-inline">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 action-btn"
                                                 onclick="return confirm('Delete this booking record?')">
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </form>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white py-3 border-top d-flex justify-content-between align-items-center text-muted small">
+            <div>Showing frame try-on reservations</div>
+            <div>Optical Care Management System</div>
         </div>
     </div>
 </div>

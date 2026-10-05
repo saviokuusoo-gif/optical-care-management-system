@@ -1,0 +1,89 @@
+@model IEnumerable<optical_care_management_system.Models.Patient>
+
+@{
+    ViewData["Title"] = "My Patients - Doctor Portal";
+    var patients = Model.ToList();
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold"><i class="fa-solid fa-hospital-user text-primary me-2"></i>My Patients</h2>
+            <p class="text-muted mb-0">Patients assigned, examined, or prescribed by you: @patients.Count</p>
+        </div>
+        <a asp-action="ExaminationRecordForm" class="btn btn-primary">
+            <i class="fa fa-stethoscope me-1"></i> New Examination
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body">
+            <div class="mb-3 no-print">
+                <input type="text" class="form-control" placeholder="Search patients by name, phone or email..." id="patientSearch" />
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Full Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Gender</th>
+                            <th>Registered Date</th>
+                            <th class="text-end" width="180">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientTable">
+                        @if (!patients.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    <i class="fa-solid fa-user-slash fa-2x mb-2 text-secondary d-block"></i>
+                                    No patients in your records yet.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var (patient, index) in patients.Select((p, i) => (p, i + 1)))
+                        {
+                            <tr>
+                                <td><span class="text-muted fw-semibold">#@patient.Id</span></td>
+                                <td>
+                                    <div class="fw-bold">@patient.FullName</div>
+                                </td>
+                                <td>@patient.Phone</td>
+                                <td>@patient.Email</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">@(string.IsNullOrWhiteSpace(patient.Gender) ? "N/A" : patient.Gender)</span>
+                                </td>
+                                <td>@patient.CreatedAt.ToString("dd MMM yyyy")</td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <a asp-action="PatientDetails" asp-route-id="@patient.Id" class="btn btn-sm btn-info text-white" title="Medical History">
+                                            <i class="fa fa-notes-medical"></i> History
+                                        </a>
+                                        <a asp-action="ExaminationRecordForm" asp-route-patientId="@patient.Id" class="btn btn-sm btn-primary" title="Examine">
+                                            <i class="fa fa-stethoscope"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("patientSearch")?.addEventListener("keyup", function () {
+            const val = this.value.toLowerCase();
+            document.querySelectorAll("#patientTable tr").forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(val) ? "" : "none";
+            });
+        });
+    </script>
+}

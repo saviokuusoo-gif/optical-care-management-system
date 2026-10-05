@@ -1,7 +1,8 @@
 @model IEnumerable<optical_care_management_system.Models.Frame>
 
 @{
-    ViewData["Title"] = "Eyeglass Frames";
+    ViewData["Title"] = "Eyeglass Frames Catalog";
+    ViewData["FullWidth"] = true; // Use full screen width for modern ecommerce layout
     var frames = Model?.ToList() ?? new List<optical_care_management_system.Models.Frame>();
 
     string? search = ViewBag.Search;
@@ -20,120 +21,138 @@
     <link rel="stylesheet" href="~/css/frames.css" asp-append-version="true" />
 }
 
-<!-- ================= HERO ================= -->
+<!-- ================= COMPACT HERO BANNER ================= -->
 <section class="hero-section">
-    <div class="container">
-        <h1>Eyeglass Frames</h1>
-        <p>Find the perfect frames for your style and vision.</p>
-
-        <div class="hero-features">
-            <div><i class="fa-solid fa-glasses"></i><span>Wide Selection</span></div>
-            <div><i class="fa-solid fa-shield-halved"></i><span>Quality Guaranteed</span></div>
-            <div><i class="fa-solid fa-truck-fast"></i><span>Fast Delivery</span></div>
+    <div class="container-fluid px-3 px-md-4 px-xl-5">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="hero-title mb-1"><i class="fa-solid fa-glasses text-info me-2"></i>Designer Eyeglass Frames</h1>
+                <p class="hero-subtitle mb-0">Discover our premium eyewear collection crafted for comfort, clarity, and personal style.</p>
+            </div>
+            <div class="hero-features d-none d-md-flex">
+                <div><i class="fa-solid fa-glasses text-info"></i><span>500+ Designer Styles</span></div>
+                <div><i class="fa-solid fa-shield-halved text-success"></i><span>100% Authentic Quality</span></div>
+                <div><i class="fa-solid fa-truck-fast text-warning"></i><span>Free Fitting at Clinic</span></div>
+            </div>
         </div>
     </div>
 </section>
 
-<div class="container-fluid">
+<!-- ================= MAIN CATALOG CONTAINER ================= -->
+<div class="container-fluid px-3 px-md-4 px-xl-5 pb-5">
     @if (TempData["Success"] is not null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3 mb-3" role="alert">
             <i class="fa fa-circle-check me-1"></i> @TempData["Success"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="row g-4">
+    <div class="row g-3 g-xl-4 align-items-start">
 
-        <!-- ================= SIDEBAR ================= -->
-        <div class="col-lg-3">
+        <!-- ================= SIDEBAR FILTERS ================= -->
+        <aside class="col-12 col-md-4 col-lg-3 col-xxl-2">
             <div class="filter-card">
-                <h5><i class="fa-solid fa-sliders text-primary"></i> Filter Frames</h5>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="fa-solid fa-sliders text-primary me-2"></i>Filter Frames</h5>
+                    <a asp-action="Index" class="btn-clear-all" title="Reset all filters">Reset</a>
+                </div>
 
                 <form method="get" asp-action="Index">
-
+                    <!-- Search Input -->
                     <div class="filter-group">
-                        <label class="filter-title" for="searchInput">Search</label>
-                        <input type="text" id="searchInput" name="search" value="@search"
-                               class="form-control" placeholder="Name or brand" />
+                        <label class="filter-title" for="searchInput">Search Keyword</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa fa-search"></i></span>
+                            <input type="text" id="searchInput" name="search" value="@search"
+                                   class="form-control bg-light border-start-0" placeholder="Model or brand..." />
+                        </div>
                     </div>
 
+                    <!-- Gender Filter -->
                     <div class="filter-group">
                         <span class="filter-title">Gender</span>
-                        @foreach (var option in new[] { "", "Men", "Women", "Unisex" })
-                        {
-                            var id = $"gender-{(option.Length == 0 ? "all" : option.ToLower())}";
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="gender"
-                                       id="@id" value="@option"
-                                       checked="@(string.Equals(gender ?? string.Empty, option, StringComparison.Ordinal))" />
-                                <label class="form-check-label" for="@id">@(option.Length == 0 ? "All" : option)</label>
-                            </div>
-                        }
+                        <div class="gender-pill-group">
+                            @foreach (var option in new[] { "", "Men", "Women", "Unisex" })
+                            {
+                                var id = $"gender-{(option.Length == 0 ? "all" : option.ToLower())}";
+                                var isChecked = string.Equals(gender ?? string.Empty, option, StringComparison.Ordinal);
+                                <input class="btn-check" type="radio" name="gender" id="@id" value="@option" checked="@isChecked" onchange="this.form.submit()" />
+                                <label class="btn btn-outline-secondary btn-sm gender-pill" for="@id">
+                                    @(option.Length == 0 ? "All" : option)
+                                </label>
+                            }
+                        </div>
                     </div>
 
+                    <!-- Frame Shape -->
                     <div class="filter-group">
                         <label class="filter-title" for="shapeSelect">Frame Shape</label>
-                        <select class="form-select" id="shapeSelect" name="shape">
+                        <select class="form-select form-select-sm" id="shapeSelect" name="shape" onchange="this.form.submit()">
                             <option value="">All Shapes</option>
-                            @foreach (var option in new[] { "Round", "Square", "Rectangle", "Cat Eye" })
+                            @foreach (var option in new[] { "Round", "Square", "Rectangle", "Cat Eye", "Aviator", "Geometric" })
                             {
                                 <option value="@option" selected="@(shape == option)">@option</option>
                             }
                         </select>
                     </div>
 
+                    <!-- Frame Material -->
                     <div class="filter-group">
                         <label class="filter-title" for="materialSelect">Frame Material</label>
-                        <select class="form-select" id="materialSelect" name="material">
+                        <select class="form-select form-select-sm" id="materialSelect" name="material" onchange="this.form.submit()">
                             <option value="">All Materials</option>
-                            @foreach (var option in new[] { "Metal", "Plastic", "Titanium", "Acetate", "Mixed Metal" })
+                            @foreach (var option in new[] { "Metal", "Plastic", "Titanium", "Acetate", "Mixed Metal", "TR90 Ultra-Light" })
                             {
                                 <option value="@option" selected="@(material == option)">@option</option>
                             }
                         </select>
                     </div>
 
+                    <!-- Price Range -->
                     <div class="filter-group">
-                        <span class="filter-title">Price Range</span>
+                        <span class="filter-title">Price Range ($)</span>
                         <div class="row g-2">
                             <div class="col-6">
-                                <input type="number" name="minPrice" step="0.01" min="0"
+                                <input type="number" name="minPrice" step="1" min="0"
                                        value="@(minPrice?.ToString() ?? "")"
-                                       class="form-control" placeholder="Min" aria-label="Minimum price" />
+                                       class="form-control form-control-sm" placeholder="Min $" aria-label="Minimum price" />
                             </div>
                             <div class="col-6">
-                                <input type="number" name="maxPrice" step="0.01" min="0"
+                                <input type="number" name="maxPrice" step="1" min="0"
                                        value="@(maxPrice?.ToString() ?? "")"
-                                       class="form-control" placeholder="Max" aria-label="Maximum price" />
+                                       class="form-control form-control-sm" placeholder="Max $" aria-label="Maximum price" />
                             </div>
                         </div>
                     </div>
 
                     <input type="hidden" name="sort" value="@sort" />
 
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fa fa-filter"></i> Apply Filter
-                    </button>
-
-                    <a asp-action="Index" class="btn btn-link w-100 mt-1 text-decoration-none">Clear all</a>
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary btn-sm rounded-pill fw-bold shadow-sm">
+                            <i class="fa fa-filter me-1"></i> Apply Filters
+                        </button>
+                    </div>
                 </form>
             </div>
-        </div>
+        </aside>
 
-        <!-- ================= PRODUCTS ================= -->
-        <div class="col-lg-9">
+        <!-- ================= PRODUCTS GRID AREA ================= -->
+        <main class="col-12 col-md-8 col-lg-9 col-xxl-10">
 
-            <div class="frames-toolbar">
-                <p class="result-count">
-                    Showing <span>@frames.Count</span> frame@(frames.Count == 1 ? "" : "s")
-                </p>
-
+            <!-- Toolbar Header -->
+            <div class="frames-toolbar mb-3">
                 <div class="d-flex align-items-center gap-2">
+                    <p class="result-count mb-0">
+                        Showing <strong>@frames.Count</strong> frame@(frames.Count == 1 ? "" : "s")
+                    </p>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 flex-wrap">
                     @if (isAdmin)
                     {
-                        <a asp-action="Create" class="btn btn-success btn-sm">
-                            <i class="fa fa-plus"></i> Add Frame
+                        <a asp-action="Create" class="btn btn-success btn-sm rounded-pill px-3 fw-semibold">
+                            <i class="fa fa-plus me-1"></i> Add New Frame
                         </a>
                     }
 
@@ -145,37 +164,41 @@
                         <input type="hidden" name="minPrice" value="@(minPrice?.ToString() ?? "")" />
                         <input type="hidden" name="maxPrice" value="@(maxPrice?.ToString() ?? "")" />
 
-                        <label class="text-muted small mb-0" for="sortSelect">Sort</label>
-                        <select name="sort" id="sortSelect" class="form-select form-select-sm w-auto"
+                        <label class="text-muted small mb-0 fw-semibold" for="sortSelect">Sort:</label>
+                        <select name="sort" id="sortSelect" class="form-select form-select-sm rounded-pill w-auto"
                                 onchange="this.form.submit()">
-                            <option value="" selected="@(string.IsNullOrEmpty(sort))">Popular</option>
+                            <option value="" selected="@(string.IsNullOrEmpty(sort))">Popular & Featured</option>
                             <option value="price_low" selected="@(sort == "price_low")">Price: Low to High</option>
                             <option value="price_high" selected="@(sort == "price_high")">Price: High to Low</option>
-                            <option value="newest" selected="@(sort == "newest")">Newest</option>
+                            <option value="newest" selected="@(sort == "newest")">Newest Arrivals</option>
                         </select>
                     </form>
                 </div>
             </div>
 
+            <!-- Products Grid (4 to 5 cards per row on desktop) -->
             @if (!frames.Any())
             {
-                <div class="frames-empty">
-                    <i class="fa-solid fa-glasses"></i>
-                    <h5>No frames match your filters</h5>
-                    <p class="mb-3">Try widening your search or clearing the filters.</p>
-                    <a asp-action="Index" class="btn btn-outline-primary">Clear filters</a>
+                <div class="frames-empty text-center py-5">
+                    <i class="fa-solid fa-glasses fa-3x mb-3 text-secondary d-block"></i>
+                    <h5 class="fw-bold text-dark">No frames match your filters</h5>
+                    <p class="text-muted small mb-3">Try clearing some filter criteria or search terms to see available frames.</p>
+                    <a asp-action="Index" class="btn btn-outline-primary rounded-pill px-4 btn-sm">
+                        <i class="fa fa-rotate-left me-1"></i> Clear Filters
+                    </a>
                 </div>
             }
             else
             {
-                <div class="row g-4">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5 g-3">
                     @foreach (var item in frames)
                     {
-                        var image = string.IsNullOrWhiteSpace(item.ImageUrl) ? "default-frame.svg" : item.ImageUrl;
+                        var image = string.IsNullOrWhiteSpace(item.ImageUrl) ? "default-frame.jpg" : item.ImageUrl;
 
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="col">
                             <div class="frame-card">
 
+                                <!-- Image Container (Fixed Height + Cover) -->
                                 <div class="frame-image">
                                     @if (item.IsAvailable)
                                     {
@@ -186,25 +209,24 @@
                                         <span class="frame-badge out-stock">Sold Out</span>
                                     }
 
-                                    <span class="wishlist" role="button" aria-label="Add to wishlist">
-                                        <i class="fa-regular fa-heart"></i>
-                                    </span>
-
-                                    @* Fall back to the placeholder if the file is missing. *@
                                     <img src="~/images/frames/@image" alt="@item.Name"
                                          loading="lazy"
-                                         onerror="this.onerror=null;this.src='/images/frames/default-frame.svg';" />
+                                         onerror="this.onerror=null;this.src='/images/frames/default-frame.jpg';" />
                                 </div>
 
+                                <!-- Card Body Content -->
                                 <div class="card-body">
-                                    @if (!string.IsNullOrWhiteSpace(item.Code))
-                                    {
-                                        <small class="product-code">@item.Code</small>
-                                    }
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="brand text-truncate">@item.Brand</span>
+                                        @if (!string.IsNullOrWhiteSpace(item.Code))
+                                        {
+                                            <span class="product-code text-truncate">@item.Code</span>
+                                        }
+                                    </div>
 
-                                    <h5>@item.Name</h5>
-                                    <p class="brand">@item.Brand</p>
+                                    <h5 class="frame-title" title="@item.Name">@item.Name</h5>
 
+                                    <!-- Specs Chips -->
                                     <div class="frame-specs">
                                         @if (!string.IsNullOrWhiteSpace(item.Shape))
                                         {
@@ -218,55 +240,50 @@
                                         {
                                             <span class="spec-chip">@item.Color</span>
                                         }
-                                        @if (!string.IsNullOrWhiteSpace(item.Gender))
-                                        {
-                                            <span class="spec-chip">@item.Gender</span>
-                                        }
                                     </div>
 
-                                    <div class="rating">
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star-half-alt text-warning"></i>
-                                        <span>(48)</span>
+                                    <!-- Price & Rating -->
+                                    <div class="d-flex justify-content-between align-items-baseline mt-auto pt-2">
+                                        <div class="price">$@item.Price.ToString("F2")</div>
+                                        <div class="rating">
+                                            <i class="fas fa-star text-warning"></i>
+                                            <span class="small text-muted">4.8</span>
+                                        </div>
                                     </div>
 
-                                    <div class="price">@item.Price.ToString("C")</div>
-
+                                    <!-- Action Buttons -->
                                     <div class="card-actions">
                                         @if (isPatient)
                                         {
                                             @if (item.IsAvailable)
                                             {
                                                 <a asp-action="BookFrame" asp-route-id="@item.Id"
-                                                   class="btn btn-book">
-                                                    <i class="fa fa-bookmark"></i> Book This Frame
+                                                   class="btn btn-book btn-sm rounded-pill fw-bold">
+                                                    <i class="fa fa-bookmark me-1"></i> Book Frame
                                                 </a>
                                             }
                                             else
                                             {
-                                                <button class="btn btn-secondary" disabled>
-                                                    <i class="fa fa-ban"></i> Sold Out
+                                                <button class="btn btn-secondary btn-sm rounded-pill" disabled>
+                                                    <i class="fa fa-ban me-1"></i> Sold Out
                                                 </button>
                                             }
                                         }
 
                                         <a asp-action="Details" asp-route-id="@item.Id"
-                                           class="btn btn-outline-primary">
-                                            <i class="fa fa-eye"></i> View Details
+                                           class="btn btn-outline-primary btn-sm rounded-pill fw-semibold">
+                                            <i class="fa fa-eye me-1"></i> View Details
                                         </a>
 
                                         @if (isAdmin)
                                         {
-                                            <div class="d-flex gap-2">
+                                            <div class="d-flex gap-1 mt-1">
                                                 <a asp-action="Edit" asp-route-id="@item.Id"
-                                                   class="btn btn-outline-secondary btn-sm flex-fill">
+                                                   class="btn btn-outline-secondary btn-xs rounded-pill flex-fill" title="Edit Frame">
                                                     <i class="fa fa-edit"></i> Edit
                                                 </a>
                                                 <a asp-action="Delete" asp-route-id="@item.Id"
-                                                   class="btn btn-outline-danger btn-sm flex-fill">
+                                                   class="btn btn-outline-danger btn-xs rounded-pill flex-fill" title="Delete Frame">
                                                     <i class="fa fa-trash"></i> Delete
                                                 </a>
                                             </div>
@@ -279,6 +296,6 @@
                     }
                 </div>
             }
-        </div>
+        </main>
     </div>
 </div>

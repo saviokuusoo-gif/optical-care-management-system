@@ -1,111 +1,308 @@
 @model IEnumerable<optical_care_management_system.Models.Appointment>
 
 @{
-    ViewData["Title"] = "Appointments";
+    ViewData["Title"] = "Appointments Management - Optical Care";
     var appointments = Model?.ToList() ?? new List<optical_care_management_system.Models.Appointment>();
+    string? selectedStatus = ViewBag.Status;
+    int totalCount = ViewBag.TotalCount ?? appointments.Count;
+    int pendingCount = ViewBag.PendingCount ?? 0;
+    int approvedCount = ViewBag.ApprovedCount ?? 0;
+    int canceledCount = ViewBag.CanceledCount ?? 0;
 }
 
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <h2 class="text-primary"><i class="bi bi-calendar2-week"></i> Appointments</h2>
-            <p class="text-muted mb-0">Review and manage scheduled appointments. Total: @appointments.Count</p>
-        </div>
-        <a asp-action="AppointmentForm" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> New Appointment
-        </a>
-    </div>
-
-    @if (TempData["Success"] != null)
+    <!-- Flash Messages -->
+    @if (TempData["Success"] is not null)
     {
-        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
-            @TempData["Success"]
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] is not null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 rounded-3" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i> @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    @if (appointments.Any())
-    {
-        <div class="card shadow">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Patient</th>
-                                <th>Doctor</th>
-                                <th>Status</th>
-                                <th class="no-print">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var appointment in appointments)
-                            {
-                                var statusText = appointment.Status.ToString();
-                                var badgeClass = statusText.ToLower() switch
-                                {
-                                    "approved" => "bg-success",
-                                    "canceled" => "bg-danger",
-                                    _ => "bg-warning"
-                                };
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="fa-solid fa-calendar-check text-primary me-2"></i>Appointments & Patient Bookings
+            </h2>
+            <p class="text-muted mb-0">Approve, reject, or assign patient examination appointments to specialist doctors.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <!-- Status Filter Tabs -->
+            <div class="btn-group rounded-pill shadow-sm p-1 bg-white border" role="group" aria-label="Filter by appointment status">
+                <a asp-action="Appointments" class="btn btn-sm rounded-pill px-3 @(string.IsNullOrEmpty(selectedStatus) ? "btn-primary fw-bold" : "btn-light text-dark")">
+                    All (@totalCount)
+                </a>
+                <a asp-action="Appointments" asp-route-status="Pending" class="btn btn-sm rounded-pill px-3 @(selectedStatus == "Pending" ? "btn-warning fw-bold text-dark" : "btn-light text-dark")">
+                    <i class="fa-solid fa-clock me-1"></i> Pending (@pendingCount)
+                </a>
+                <a asp-action="Appointments" asp-route-status="Approved" class="btn btn-sm rounded-pill px-3 @(selectedStatus == "Approved" ? "btn-success fw-bold text-white" : "btn-light text-dark")">
+                    <i class="fa-solid fa-circle-check me-1"></i> Approved (@approvedCount)
+                </a>
+                <a asp-action="Appointments" asp-route-status="Canceled" class="btn btn-sm rounded-pill px-3 @(selectedStatus == "Canceled" ? "btn-danger fw-bold text-white" : "btn-light text-dark")">
+                    <i class="fa-solid fa-circle-xmark me-1"></i> Rejected (@canceledCount)
+                </a>
+            </div>
 
-                                <tr>
-                                    <td>@appointment.AppointmentDate.ToString("dd/MM/yyyy")</td>
-                                    <td>@appointment.TimeSlot</td>
-                                    <td>@(appointment.Patient?.FullName ?? "Unknown Patient")</td>
-                                    <td>
-                                        @if (appointment.Doctor is not null)
-                                        {
-                                            @appointment.Doctor.FullName
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">Not assigned</span>
-                                        }
-                                    </td>
-                                    <td><span class="badge @badgeClass text-white">@statusText</span></td>
-                                    <td class="no-print">
-                                        @if (appointment.Status == optical_care_management_system.Models.AppointmentStatus.Pending)
-                                        {
-                                            <form asp-action="UpdateAppointmentStatus" asp-route-id="@appointment.Id" method="post" class="d-inline">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="status" value="Approved" />
-                                                <button type="submit" class="btn btn-sm btn-success">
-                                                    <i class="bi bi-check-circle"></i> Approve
-                                                </button>
-                                            </form>
-                                            <form asp-action="UpdateAppointmentStatus" asp-route-id="@appointment.Id" method="post" class="d-inline">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="status" value="Canceled" />
-                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to cancel this appointment?')">
-                                                    <i class="bi bi-x-circle"></i> Cancel
-                                                </button>
-                                            </form>
-                                        }
-                                        <a asp-action="AppointmentForm" asp-route-id="@appointment.Id" class="btn btn-sm btn-warning">
-                                            <i class="bi bi-pencil"></i> Edit
-                                        </a>
-                                        <form asp-action="DeleteAppointment" asp-route-id="@appointment.Id" method="post" class="d-inline">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this appointment?')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+            <a asp-action="AppointmentForm" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+                <i class="fa-solid fa-plus me-1"></i> New Appointment
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Total Bookings</div>
+                        <div class="fs-2 fw-bold text-dark">@totalCount</div>
+                    </div>
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                        <i class="fa-solid fa-calendar-days fa-xl"></i>
+                    </div>
                 </div>
             </div>
         </div>
-    }
-    else
-    {
-        <div class="alert alert-info">
-            There are no appointments to display at this time.
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-warning">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Pending Approval</div>
+                        <div class="fs-2 fw-bold text-dark">@pendingCount</div>
+                    </div>
+                    <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-circle">
+                        <i class="fa-solid fa-clock fa-xl"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-    }
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Approved Visits</div>
+                        <div class="fs-2 fw-bold text-dark">@approvedCount</div>
+                    </div>
+                    <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle">
+                        <i class="fa-solid fa-circle-check fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-danger">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Rejected / Canceled</div>
+                        <div class="fs-2 fw-bold text-dark">@canceledCount</div>
+                    </div>
+                    <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-circle">
+                        <i class="fa-solid fa-circle-xmark fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Table Card -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+        <!-- Search Toolbar -->
+        <div class="card-header bg-white border-bottom p-3">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa fa-search"></i></span>
+                        <input type="text" class="form-control bg-light border-start-0 ps-0" placeholder="Search by patient, doctor, date, or status..." id="apptSearch" />
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end text-muted small">
+                    <span id="apptCountBadge" class="badge bg-light text-dark border px-3 py-2 fs-7 rounded-pill">
+                        <i class="fa-solid fa-calendar-check me-1 text-primary"></i> Showing @appointments.Count Appointments
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: linear-gradient(135deg, #0F2D5C 0%, #163d7a 100%); color: #ffffff;">
+                    <tr>
+                        <th class="py-3 ps-4" style="font-weight: 600;">Date & Time</th>
+                        <th class="py-3" style="font-weight: 600;">Patient</th>
+                        <th class="py-3" style="font-weight: 600;">Assigned Doctor</th>
+                        <th class="py-3" style="font-weight: 600;">Status</th>
+                        <th class="py-3" style="font-weight: 600;">Notes</th>
+                        <th class="py-3 pe-4 text-end no-print" style="font-weight: 600; min-width: 260px;">Actions (Approve / Reject)</th>
+                    </tr>
+                </thead>
+                <tbody id="apptTable">
+                    @if (!appointments.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fa-regular fa-calendar-xmark fa-3x mb-3 text-secondary d-block"></i>
+                                <h5 class="fw-bold text-dark">No Appointments Found</h5>
+                                <p class="small text-muted mb-3">No appointments found@(string.IsNullOrEmpty(selectedStatus) ? "." : $" with status '{selectedStatus}'.")</p>
+                                <a asp-action="AppointmentForm" class="btn btn-sm btn-primary rounded-pill px-3">
+                                    <i class="fa-solid fa-plus me-1"></i> Schedule Appointment
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var appt in appointments)
+                    {
+                        var status = appt.Status;
+                        var badgeClass = status switch
+                        {
+                            optical_care_management_system.Models.AppointmentStatus.Approved => "bg-success text-white",
+                            optical_care_management_system.Models.AppointmentStatus.Canceled => "bg-danger text-white",
+                            _ => "bg-warning text-dark"
+                        };
+
+                        <tr class="appt-row">
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">@appt.AppointmentDate.ToString("dd MMM yyyy")</div>
+                                <span class="badge bg-light text-dark border"><i class="fa-regular fa-clock me-1 text-primary"></i>@appt.TimeSlot</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-circle-sm">
+                                        @(string.Join("", (appt.Patient?.FullName ?? "P").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => s[0])).ToUpper())
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">@(appt.Patient?.FullName ?? "Unknown Patient")</div>
+                                        <small class="text-muted"><i class="fa-solid fa-phone me-1 text-success"></i>@(appt.Patient?.Phone ?? "-")</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @if (appt.Doctor is not null)
+                                {
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-user-doctor text-info"></i>
+                                        <div>
+                                            <div class="fw-semibold text-dark">@appt.Doctor.FullName</div>
+                                            <small class="text-muted">@appt.Doctor.Specialty</small>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-secondary border"><i class="fa-solid fa-user-xmark me-1"></i>Unassigned</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @badgeClass px-3 py-2 rounded-pill">
+                                    @if (status == optical_care_management_system.Models.AppointmentStatus.Approved)
+                                    {
+                                        <i class="fa-solid fa-circle-check me-1"></i> <span>Approved</span>
+                                    }
+                                    else if (status == optical_care_management_system.Models.AppointmentStatus.Canceled)
+                                    {
+                                        <i class="fa-solid fa-circle-xmark me-1"></i> <span>Rejected</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa-solid fa-clock me-1"></i> <span>Pending</span>
+                                    }
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted">@(string.IsNullOrWhiteSpace(appt.Notes) ? "-" : appt.Notes)</small>
+                            </td>
+                            <td class="pe-4 text-end no-print" style="white-space: nowrap;">
+                                <div class="d-inline-flex gap-1">
+                                    @if (appt.Status != optical_care_management_system.Models.AppointmentStatus.Approved)
+                                    {
+                                        <form asp-action="UpdateAppointmentStatus" asp-route-id="@appt.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="status" value="Approved" />
+                                            <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold action-btn" title="Approve this appointment">
+                                                <i class="fa-solid fa-check me-1"></i> Approve
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (appt.Status != optical_care_management_system.Models.AppointmentStatus.Canceled)
+                                    {
+                                        <form asp-action="UpdateAppointmentStatus" asp-route-id="@appt.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="status" value="Canceled" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold action-btn" title="Reject this appointment" onclick="return confirm('Are you sure you want to Reject this appointment?');">
+                                                <i class="fa-solid fa-times me-1"></i> Reject
+                                            </button>
+                                        </form>
+                                    }
+                                    <a asp-action="AppointmentForm" asp-route-id="@appt.Id" class="btn btn-sm btn-outline-warning rounded-pill px-2 fw-semibold action-btn" title="Edit Appointment">
+                                        <i class="fa-solid fa-edit"></i>
+                                    </a>
+                                    <form asp-action="DeleteAppointment" asp-route-id="@appt.Id" method="post" class="d-inline" onsubmit="return confirm('Delete this appointment record?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-2 action-btn" title="Delete">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white py-3 border-top d-flex justify-content-between align-items-center text-muted small">
+            <div>Showing appointments schedule</div>
+            <div>Optical Care Management System</div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .avatar-circle-sm {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1E88E5 0%, #0F2D5C 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.getElementById("apptSearch")?.addEventListener("keyup", function () {
+            const val = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll("#apptTable tr.appt-row");
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(val)) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            const badge = document.getElementById("apptCountBadge");
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid fa-calendar-check me-1 text-primary"></i> Showing ${visibleCount} Appointments`;
+            }
+        });
+    </script>
+}

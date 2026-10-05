@@ -1,91 +1,207 @@
 @model IEnumerable<optical_care_management_system.Models.ExaminationRecord>
 
 @{
-    ViewData["Title"] = "Examination Records";
+    ViewData["Title"] = "Examination Records - Optical Care";
     var records = Model?.ToList() ?? new List<optical_care_management_system.Models.ExaminationRecord>();
+    var totalExams = records.Count;
+    var thisMonthExams = records.Count(r => r.ExamDate.Month == DateTime.UtcNow.Month && r.ExamDate.Year == DateTime.UtcNow.Year);
 }
 
 <div class="container mt-4">
-
+    <!-- Flash Messages -->
     @if (TempData["Success"] is not null)
     {
-        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
-            @TempData["Success"]
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] is not null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 rounded-3" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i> @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-            <h2>Examination Records</h2>
-            <p class="text-muted mb-0">Total Records: @records.Count</p>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="fa-solid fa-microscope text-primary me-2"></i>Clinical Eye Examinations
+            </h2>
+            <p class="text-muted mb-0">Review diagnostic optical refraction records, visual acuity, and eye pressure testing logs.</p>
         </div>
-        <div class="d-flex gap-2 flex-wrap">
+        <div class="d-flex gap-2 flex-wrap no-print">
             @await Html.PartialAsync("_RecordToolbar", new optical_care_management_system.Models.RecordToolbarModel
             {
                 Title = "Examination Records Report",
                 ExportAction = "ExportExaminationRecords",
                 RecordCount = records.Count
             })
-            <a asp-action="ExaminationRecordForm" class="btn btn-primary no-print">
-                <i class="fa fa-plus"></i> Add New Record
+            <a asp-action="ExaminationRecordForm" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+                <i class="fa-solid fa-plus me-1"></i> New Exam Record
             </a>
         </div>
     </div>
 
-    <div class="card shadow">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Patient</th>
-                            <th>Doctor</th>
-                            <th>Date</th>
-                            <th>Left Eye</th>
-                            <th>Right Eye</th>
-                            <th>Visual Acuity</th>
-                            <th>Eye Pressure</th>
-                            <th>Notes</th>
-                            <th width="170" class="text-end no-print">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (!records.Any())
-                        {
-                            <tr>
-                                <td colspan="9" class="text-center text-muted py-4">
-                                    No examination records yet.
-                                </td>
-                            </tr>
-                        }
-                        @foreach (var item in records)
-                        {
-                            <tr>
-                                <td>@(item.Patient?.FullName ?? "-")</td>
-                                <td>@(item.Doctor?.FullName ?? "-")</td>
-                                <td>@item.ExamDate.ToString("dd/MM/yyyy")</td>
-                                <td>@item.LeftEye</td>
-                                <td>@item.RightEye</td>
-                                <td>@item.VisualAcuity</td>
-                                <td>@item.EyePressure</td>
-                                <td>@item.Notes</td>
-                                <td class="text-end no-print">
-                                    <a asp-action="ExaminationRecordForm" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
-                                        <i class="fa fa-edit"></i> Edit
-                                    </a>
-                                    <form asp-action="DeleteExaminationRecord" asp-route-id="@item.Id" method="post" style="display:inline">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this record?')">
-                                            <i class="fa fa-trash"></i> Delete
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+    <!-- Quick Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Total Completed Examinations</div>
+                        <div class="fs-2 fw-bold text-dark">@totalExams</div>
+                    </div>
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                        <i class="fa-solid fa-eye fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-info">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Examinations This Month</div>
+                        <div class="fs-2 fw-bold text-dark">@thisMonthExams</div>
+                    </div>
+                    <div class="p-3 bg-info bg-opacity-10 text-info rounded-circle">
+                        <i class="fa-solid fa-calendar-check fa-xl"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Main Table Card -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+        <!-- Search Toolbar -->
+        <div class="card-header bg-white border-bottom p-3">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa fa-search"></i></span>
+                        <input type="text" class="form-control bg-light border-start-0 ps-0" placeholder="Search examination records by patient, doctor, or findings..." id="examSearch" />
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end text-muted small">
+                    <span id="examCountBadge" class="badge bg-light text-dark border px-3 py-2 fs-7 rounded-pill">
+                        <i class="fa-solid fa-eye me-1 text-primary"></i> Showing @totalExams Records
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: linear-gradient(135deg, #0F2D5C 0%, #163d7a 100%); color: #ffffff;">
+                    <tr>
+                        <th class="py-3 ps-4" style="font-weight: 600;">Patient</th>
+                        <th class="py-3" style="font-weight: 600;">Examining Doctor</th>
+                        <th class="py-3" style="font-weight: 600;">Exam Date</th>
+                        <th class="py-3" style="font-weight: 600;">Left Eye (OS)</th>
+                        <th class="py-3" style="font-weight: 600;">Right Eye (OD)</th>
+                        <th class="py-3" style="font-weight: 600;">Acuity</th>
+                        <th class="py-3" style="font-weight: 600;">Pressure (IOP)</th>
+                        <th class="py-3" style="font-weight: 600;">Clinical Notes</th>
+                        <th class="py-3 pe-4 text-end no-print" style="font-weight: 600; min-width: 170px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="examTable">
+                    @if (!records.Any())
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-eye-slash fa-3x mb-3 text-secondary d-block"></i>
+                                <h5 class="fw-bold text-dark">No Examination Records Found</h5>
+                                <p class="small text-muted mb-3">Conduct an examination to log optical test findings.</p>
+                                <a asp-action="ExaminationRecordForm" class="btn btn-sm btn-primary rounded-pill px-3">
+                                    <i class="fa-solid fa-plus me-1"></i> New Record
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var item in records)
+                    {
+                        <tr class="exam-row">
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">@(item.Patient?.FullName ?? "Patient")</div>
+                                <small class="text-muted">ID: #@(item.PatientId)</small>
+                            </td>
+                            <td>
+                                @if (item.Doctor != null)
+                                {
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fa-solid fa-user-doctor text-info me-1"></i>@item.Doctor.FullName
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">-</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="small text-dark">@item.ExamDate.ToString("dd MMM yyyy")</span>
+                            </td>
+                            <td><code>@item.LeftEye</code></td>
+                            <td><code>@item.RightEye</code></td>
+                            <td><span class="badge bg-light text-dark border">@item.VisualAcuity</span></td>
+                            <td><span class="badge bg-light text-dark border">@item.EyePressure</span></td>
+                            <td>
+                                <small class="text-muted">@(string.IsNullOrWhiteSpace(item.Notes) ? "-" : item.Notes)</small>
+                            </td>
+                            <td class="pe-4 text-end no-print" style="white-space: nowrap;">
+                                <div class="d-inline-flex gap-1">
+                                    <a asp-action="PrintExamination" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold action-btn" title="Print Examination Report" target="_blank">
+                                        <i class="fa-solid fa-print me-1"></i> Print
+                                    </a>
+                                    <a asp-action="ExaminationRecordForm" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning rounded-pill px-2 action-btn" title="Edit Exam Record">
+                                        <i class="fa-solid fa-edit"></i>
+                                    </a>
+                                    <form asp-action="DeleteExaminationRecord" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Delete this examination record?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 action-btn" title="Delete">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white py-3 border-top d-flex justify-content-between align-items-center text-muted small">
+            <div>Showing clinical examination logs</div>
+            <div>Optical Care Management System</div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById("examSearch")?.addEventListener("keyup", function () {
+            const val = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll("#examTable tr.exam-row");
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(val)) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            const badge = document.getElementById("examCountBadge");
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid fa-eye me-1 text-primary"></i> Showing ${visibleCount} Records`;
+            }
+        });
+    </script>
+}

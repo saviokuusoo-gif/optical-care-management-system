@@ -3,9 +3,9 @@
 @{
     ViewData["Title"] = "Patient Dashboard";
     var patient = ViewBag.Patient as optical_care_management_system.Models.Patient;
-    var totalAppointments = Model?.Count() ?? 0;
-    var totalPrescriptions = Math.Max(totalAppointments, 0);
-    var visits = Math.Max(totalAppointments, 0);
+    var totalAppointments = ViewBag.TotalAppointments ?? (Model?.Count() ?? 0);
+    var totalPrescriptions = ViewBag.TotalPrescriptions ?? 0;
+    var visits = ViewBag.TotalVisits ?? 0;
     var accountStatus = "Active";
 }
 
@@ -38,35 +38,36 @@
             </div>
         </section>
 
+        <!-- Clickable Stat Cards -->
         <section class="stats-grid" aria-label="Patient statistics">
-            <article class="stat-card">
+            <a asp-controller="Patient" asp-action="Appointments" class="stat-card" style="text-decoration: none; color: inherit; cursor: pointer;" title="Click to view all appointments">
                 <div class="stat-icon blue"><i class="bi bi-calendar2-week"></i></div>
                 <div>
                     <h3>@totalAppointments</h3>
                     <p>Total Appointments</p>
                 </div>
-            </article>
-            <article class="stat-card">
+            </a>
+            <a asp-controller="Patient" asp-action="Prescriptions" class="stat-card" style="text-decoration: none; color: inherit; cursor: pointer;" title="Click to view your prescriptions & medications">
                 <div class="stat-icon green"><i class="bi bi-prescription"></i></div>
                 <div>
                     <h3>@totalPrescriptions</h3>
                     <p>Prescriptions</p>
                 </div>
-            </article>
-            <article class="stat-card">
+            </a>
+            <a asp-controller="Patient" asp-action="ExaminationResults" class="stat-card" style="text-decoration: none; color: inherit; cursor: pointer;" title="Click to view your eye test measurements">
                 <div class="stat-icon purple"><i class="bi bi-eye"></i></div>
                 <div>
                     <h3>@visits</h3>
-                    <p>Visits</p>
+                    <p>Visits / Eye Exams</p>
                 </div>
-            </article>
-            <article class="stat-card">
+            </a>
+            <a asp-controller="Patient" asp-action="Profile" class="stat-card" style="text-decoration: none; color: inherit; cursor: pointer;" title="Click to view and edit your profile">
                 <div class="stat-icon amber"><i class="bi bi-shield-check"></i></div>
                 <div>
                     <h3>@accountStatus</h3>
                     <p>Account Status</p>
                 </div>
-            </article>
+            </a>
         </section>
 
         <section class="card-panel quick-actions-card">

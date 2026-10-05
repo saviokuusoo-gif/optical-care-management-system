@@ -27,30 +27,22 @@ public class FramesController : Controller
     {
         var query = _context.Frames.AsQueryable();
 
-        // Search
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            query = query.Where(f =>
-                f.Name.Contains(search) ||
-                f.Brand.Contains(search));
-        }
-
         // Gender Filter
         if (!string.IsNullOrWhiteSpace(gender))
         {
-            query = query.Where(f => f.Gender == gender);
+            query = query.Where(f => f.Gender.ToLower() == gender.ToLower());
         }
 
         // Shape Filter
         if (!string.IsNullOrWhiteSpace(shape))
         {
-            query = query.Where(f => f.Shape == shape);
+            query = query.Where(f => f.Shape.ToLower() == shape.ToLower());
         }
 
         // Material Filter
         if (!string.IsNullOrWhiteSpace(material))
         {
-            query = query.Where(f => f.Material == material);
+            query = query.Where(f => f.Material.ToLower() == material.ToLower());
         }
 
         // Price Filter
@@ -64,16 +56,91 @@ public class FramesController : Controller
             query = query.Where(f => f.Price <= maxPrice.Value);
         }
 
-        // Sorting
-        query = sort switch
+        // Fetch candidates for smart search and ranking
+        var allFilteredFrames = await query.ToListAsync();
+        List<Frame> resultFrames;
+
+        if (!string.IsNullOrWhiteSpace(search))
         {
-            "price_low" => query.OrderBy(f => f.Price),
+            var rawSearch = search.Trim();
+            var normalizedSearch = NormalizeSearchString(rawSearch);
 
-            "price_high" => query.OrderByDescending(f => f.Price),
+            var searchTokens = normalizedSearch
+                .Split(new[] { ' ', ',', '-', '+' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(t => t.ToLowerInvariant())
+                .Distinct()
+                .ToList();
 
-            "newest" => query.OrderByDescending(f => f.Id),
+            var rawTokens = rawSearch
+                .Split(new[] { ' ', ',', '-', '+' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(t => t.ToLowerInvariant())
+                .Distinct()
+                .ToList();
 
-            _ => query.OrderBy(f => f.Name)
+            var allTokens = searchTokens.Union(rawTokens).Distinct().ToList();
+
+            string GetFrameSearchableText(Frame f) =>
+                $"{f.Name} {f.Brand} {f.Code} {f.Gender} {f.Material} {f.Shape} {f.Color}".ToLowerInvariant();
+
+            // 1. Direct exact phrase match across combined attributes
+            var exactPhraseMatches = allFilteredFrames
+                .Where(f => GetFrameSearchableText(f).Contains(rawSearch.ToLowerInvariant()) ||
+                            GetFrameSearchableText(f).Contains(normalizedSearch.ToLowerInvariant()))
+                .ToList();
+
+            if (exactPhraseMatches.Count > 0)
+            {
+                resultFrames = exactPhraseMatches;
+            }
+            else
+            {
+                // 2. Multi-term AND match: each token matches somewhere in frame properties (or fuzzy match)
+                var allTokenMatches = allFilteredFrames
+                    .Where(f =>
+                    {
+                        var text = GetFrameSearchableText(f);
+                        return searchTokens.All(tok => MatchesToken(text, tok));
+                    })
+                    .ToList();
+
+                if (allTokenMatches.Count > 0)
+                {
+                    resultFrames = allTokenMatches;
+                }
+                else
+                {
+                    // 3. Multi-term OR match (ranked by match relevance)
+                    resultFrames = allFilteredFrames
+                        .Select(f =>
+                        {
+                            var text = GetFrameSearchableText(f);
+                            int score = 0;
+                            foreach (var tok in allTokens)
+                            {
+                                if (text.Contains(tok)) score += 3;
+                                else if (MatchesToken(text, tok)) score += 2;
+                            }
+                            return new { Frame = f, Score = score };
+                        })
+                        .Where(x => x.Score > 0)
+                        .OrderByDescending(x => x.Score)
+                        .Select(x => x.Frame)
+                        .ToList();
+                }
+            }
+        }
+        else
+        {
+            resultFrames = allFilteredFrames;
+        }
+
+        // Sorting
+        resultFrames = sort switch
+        {
+            "price_low" => resultFrames.OrderBy(f => f.Price).ToList(),
+            "price_high" => resultFrames.OrderByDescending(f => f.Price).ToList(),
+            "newest" => resultFrames.OrderByDescending(f => f.Id).ToList(),
+            _ => resultFrames.OrderBy(f => f.Name).ToList()
         };
 
         // Keep filter values
@@ -85,9 +152,97 @@ public class FramesController : Controller
         ViewBag.MaxPrice = maxPrice;
         ViewBag.Sort = sort;
 
-        var frames = await query.ToListAsync();
+        return View(resultFrames);
+    }
 
-        return View(frames);
+    private static string NormalizeSearchString(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+
+        var text = input.ToLowerInvariant();
+
+        var replacements = new Dictionary<string, string>
+        {
+            { "aye", "eye" },
+            { "ayes", "eyes" },
+            { "elagent", "elegant" },
+            { "elegent", "elegant" },
+            { "cataye", "cat eye" },
+            { "cateye", "cat eye" },
+            { "avitor", "aviator" },
+            { "aveator", "aviator" },
+            { "geomatric", "geometric" },
+            { "geomtric", "geometric" },
+            { "titaium", "titanium" },
+            { "titaniuam", "titanium" },
+            { "actate", "acetate" },
+            { "acetat", "acetate" },
+            { "glases", "glasses" },
+            { "glass", "glasses" },
+            { "sunglass", "sunglasses" },
+            { "sun glass", "sunglasses" }
+        };
+
+        foreach (var kvp in replacements)
+        {
+            text = System.Text.RegularExpressions.Regex.Replace(
+                text,
+                $@"\b{System.Text.RegularExpressions.Regex.Escape(kvp.Key)}\b",
+                kvp.Value,
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        }
+
+        return text;
+    }
+
+    private static bool MatchesToken(string searchableText, string token)
+    {
+        if (searchableText.Contains(token)) return true;
+
+        var words = searchableText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (token.Length >= 4)
+        {
+            foreach (var word in words)
+            {
+                if (word.StartsWith(token) || token.StartsWith(word)) return true;
+                if (LevenshteinDistance(word, token) <= (token.Length > 5 ? 2 : 1)) return true;
+            }
+        }
+        else if (token.Length >= 3)
+        {
+            foreach (var word in words)
+            {
+                if (word.StartsWith(token) || LevenshteinDistance(word, token) <= 1) return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static int LevenshteinDistance(string s, string t)
+    {
+        if (string.IsNullOrEmpty(s)) return t?.Length ?? 0;
+        if (string.IsNullOrEmpty(t)) return s.Length;
+
+        int n = s.Length;
+        int m = t.Length;
+        var d = new int[n + 1, m + 1];
+
+        for (int i = 0; i <= n; d[i, 0] = i++) ;
+        for (int j = 0; j <= m; d[0, j] = j++) ;
+
+        for (int i = 1; i <= n; i++)
+        {
+            for (int j = 1; j <= m; j++)
+            {
+                int cost = (t[j - 1] == s[i - 1]) ? 0 : 1;
+                d[i, j] = Math.Min(
+                    Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
+                    d[i - 1, j - 1] + cost);
+            }
+        }
+
+        return d[n, m];
     }
 
 

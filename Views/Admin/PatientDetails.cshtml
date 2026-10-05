@@ -1,367 +1,271 @@
 @model optical_care_management_system.Models.Patient
 
 @{
-    ViewData["Title"] = "Patient Details";
+    ViewData["Title"] = "Patient Details - " + Model.FullName;
+    var initials = string.Join("", (Model.FullName ?? "P").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => s[0])).ToUpper();
 }
 
-
 <div class="container mt-4">
-
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-
         <div>
-            <h2 class="mb-0">Patient Details</h2>
-            <p class="text-muted mb-0">@Model.FullName</p>
-        </div>
-
-        <div class="d-flex gap-2 flex-wrap">
-            <a asp-action="PatientForm" asp-route-id="@Model.Id" class="btn btn-warning">
-                <i class="fa fa-edit"></i> Edit
+            <a asp-action="Patients" class="btn btn-sm btn-outline-secondary mb-2 rounded-pill px-3">
+                <i class="fa fa-arrow-left me-1"></i> Back to Patients Directory
             </a>
-            <a asp-action="Patients" class="btn btn-secondary">
-                Back
-            </a>
-        </div>
-
-    </div>
-
-
-
-    <!-- Patient Information -->
-
-    <div class="card shadow mb-4">
-
-        <div class="card-header bg-primary text-white">
-
-            <h5 class="mb-0">
-                Patient Information
-            </h5>
-
-        </div>
-
-
-        <div class="card-body">
-
-
-            <div class="row">
-
-                <div class="col-md-6">
-
-                    <p>
-                        <strong>Name:</strong>
-                        @Model.FullName
-                    </p>
-
-
-                    <p>
-                        <strong>Email:</strong>
-                        @Model.Email
-                    </p>
-
-
+            <div class="d-flex align-items-center gap-3">
+                <div class="avatar-circle shadow-sm" style="width: 50px; height: 50px; font-size: 1.1rem;">
+                    @initials
                 </div>
-
-
-
-                <div class="col-md-6">
-
-                    <p>
-                        <strong>Phone:</strong>
-                        @Model.Phone
-                    </p>
-
-
-                    <p>
-                        <strong>Created Date:</strong>
-                        @Model.CreatedAt.ToString("dd/MM/yyyy")
-                    </p>
-
-
+                <div>
+                    <h2 class="fw-bold text-dark mb-0">@Model.FullName</h2>
+                    <span class="badge bg-secondary">Patient ID: #@Model.Id</span>
+                    <span class="text-muted small ms-2">Registered: @Model.CreatedAt.ToString("dd MMM yyyy")</span>
                 </div>
-
-
             </div>
-
-
         </div>
 
+        <div class="d-flex gap-2">
+            <a asp-action="PatientForm" asp-route-id="@Model.Id" class="btn btn-warning rounded-pill px-4 shadow-sm fw-semibold">
+                <i class="fa fa-edit me-1"></i> Edit Patient Info
+            </a>
+            <a asp-action="AppointmentForm" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+                <i class="fa fa-calendar-plus me-1"></i> New Appointment
+            </a>
+        </div>
     </div>
 
+    <!-- Patient Info Card -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4 bg-white">
+        <div class="card-header py-3" style="background: linear-gradient(135deg, #0F2D5C 0%, #163d7a 100%); color: #ffffff;">
+            <h5 class="mb-0 fw-bold"><i class="fa-solid fa-id-card me-2"></i>Patient Profile & Contact Information</h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-md-3 col-sm-6">
+                    <span class="text-muted small d-block">Full Name</span>
+                    <strong class="fs-6 text-dark">@Model.FullName</strong>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <span class="text-muted small d-block">Phone Number</span>
+                    <span class="badge bg-light text-dark border fs-6">
+                        <i class="fa-solid fa-phone text-success me-1"></i>@(string.IsNullOrWhiteSpace(Model.Phone) ? "Not provided" : Model.Phone)
+                    </span>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <span class="text-muted small d-block">Email Address</span>
+                    <strong class="text-dark">@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)</strong>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <span class="text-muted small d-block">Gender / Date of Birth</span>
+                    <strong>@(string.IsNullOrWhiteSpace(Model.Gender) ? "-" : Model.Gender)</strong>
+                    <span class="text-muted small">(@(Model.DateOfBirth.HasValue ? Model.DateOfBirth.Value.ToString("dd MMM yyyy") : "DOB not set"))</span>
+                </div>
+                <div class="col-md-6">
+                    <span class="text-muted small d-block">Home / Residential Address</span>
+                    <span>@(string.IsNullOrWhiteSpace(Model.Address) ? "No address specified" : Model.Address)</span>
+                </div>
+                <div class="col-md-6">
+                    <span class="text-muted small d-block">Emergency Contact</span>
+                    <span>@(string.IsNullOrWhiteSpace(Model.EmergencyContact) ? "None specified" : Model.EmergencyContact)</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-
-
-    <!-- Appointments -->
-
-    <div class="card shadow mb-4">
-
-
-        <div class="card-header bg-success text-white">
-
-            <h5 class="mb-0">
-                Appointments
-            </h5>
-
+    <!-- Clinical Tabs: Examinations, Prescriptions, Appointments -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+        <div class="card-header bg-white border-bottom p-0">
+            <ul class="nav nav-tabs card-header-tabs m-0 px-3 pt-2" id="patientDetailTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-semibold" id="exams-tab" data-bs-toggle="tab" data-bs-target="#exams" type="button" role="tab">
+                        <i class="fa-solid fa-microscope text-primary me-1"></i> Eye Examinations (@(Model.ExaminationRecords?.Count ?? 0))
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-semibold" id="prescriptions-tab" data-bs-toggle="tab" data-bs-target="#prescriptions" type="button" role="tab">
+                        <i class="fa-solid fa-file-prescription text-success me-1"></i> Prescriptions (@(Model.Prescriptions?.Count ?? 0))
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-semibold" id="appts-tab" data-bs-toggle="tab" data-bs-target="#appts" type="button" role="tab">
+                        <i class="fa-regular fa-calendar-check text-info me-1"></i> Appointments (@(Model.Appointments?.Count ?? 0))
+                    </button>
+                </li>
+            </ul>
         </div>
 
-
-        <div class="card-body">
-
-
-            @if (Model.Appointments != null && Model.Appointments.Any())
-            {
-
-                <table class="table table-bordered">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Date
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-
-                    @foreach (var appointment in Model.Appointments)
+        <div class="card-body p-4">
+            <div class="tab-content" id="patientDetailTabContent">
+                <!-- Eye Examinations Tab -->
+                <div class="tab-pane fade show active" id="exams" role="tabpanel">
+                    @if (Model.ExaminationRecords == null || !Model.ExaminationRecords.Any())
                     {
-
-                        <tr>
-
-                            <td>
-                                @appointment.AppointmentDate.ToString("dd/MM/yyyy")
-                            </td>
-
-
-                            <td>
-                                @appointment.Status
-                            </td>
-
-
-                        </tr>
-
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-eye-slash fa-3x mb-3 text-secondary d-block"></i>
+                            <h6 class="fw-bold text-dark">No Eye Examinations on Record</h6>
+                            <p class="small text-muted mb-0">No clinical examination records have been logged for this patient yet.</p>
+                        </div>
                     }
-
-
-                    </tbody>
-
-
-                </table>
-
-            }
-            else
-            {
-
-                <p class="text-muted">
-                    No appointments found.
-                </p>
-
-            }
-
-
-        </div>
-
-
-    </div>
-        <!-- Examination Records -->
-
-    <div class="card shadow mb-4">
-
-        <div class="card-header bg-info text-white">
-
-            <h5 class="mb-0">
-                Examination Records
-            </h5>
-
-        </div>
-
-
-        <div class="card-body">
-
-
-            @if (Model.ExaminationRecords != null && Model.ExaminationRecords.Any())
-            {
-
-                <table class="table table-bordered">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Exam Date
-                            </th>
-
-                            <th>
-                                Notes
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-
-                    @foreach (var record in Model.ExaminationRecords)
+                    else
                     {
-
-                        <tr>
-
-                            <td>
-                                @record.ExamDate.ToString("dd/MM/yyyy")
-                            </td>
-
-
-                            <td>
-                                @record.Notes
-                            </td>
-
-
-                        </tr>
-
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Left Eye (OS)</th>
+                                        <th>Right Eye (OD)</th>
+                                        <th>Visual Acuity</th>
+                                        <th>Eye Pressure</th>
+                                        <th>Clinical Notes</th>
+                                        <th class="text-end">Print</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var exam in Model.ExaminationRecords.OrderByDescending(e => e.ExamDate))
+                                    {
+                                        <tr>
+                                            <td><strong>@exam.ExamDate.ToString("dd MMM yyyy")</strong></td>
+                                            <td><code>@exam.LeftEye</code></td>
+                                            <td><code>@exam.RightEye</code></td>
+                                            <td><span class="badge bg-light text-dark border">@exam.VisualAcuity</span></td>
+                                            <td><span class="badge bg-light text-dark border">@exam.EyePressure</span></td>
+                                            <td><small class="text-muted">@(string.IsNullOrWhiteSpace(exam.Notes) ? "-" : exam.Notes)</small></td>
+                                            <td class="text-end">
+                                                <a asp-action="PrintExamination" asp-route-id="@exam.Id" class="btn btn-sm btn-outline-primary rounded-pill px-2" title="Print Examination Report" target="_blank">
+                                                    <i class="fa-solid fa-print"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     }
+                </div>
 
-
-                    </tbody>
-
-
-                </table>
-
-            }
-            else
-            {
-
-                <p class="text-muted">
-                    No examination records found.
-                </p>
-
-            }
-
-
-        </div>
-
-    </div>
-
-
-
-
-    <!-- Prescriptions -->
-
-    <div class="card shadow mb-4">
-
-
-        <div class="card-header bg-warning">
-
-            <h5 class="mb-0">
-                Prescriptions
-            </h5>
-
-        </div>
-
-
-
-        <div class="card-body">
-
-
-            @if (Model.Prescriptions != null && Model.Prescriptions.Any())
-            {
-
-                <table class="table table-bordered">
-
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Date
-                            </th>
-
-                            <th>
-                                Lens Type
-                            </th>
-
-                            <th>
-                                Left Eye
-                            </th>
-
-                            <th>
-                                Right Eye
-                            </th>
-
-
-                        </tr>
-
-                    </thead>
-
-
-
-                    <tbody>
-
-
-                    @foreach (var prescription in Model.Prescriptions)
+                <!-- Prescriptions Tab -->
+                <div class="tab-pane fade" id="prescriptions" role="tabpanel">
+                    @if (Model.Prescriptions == null || !Model.Prescriptions.Any())
                     {
-
-                        <tr>
-
-
-                            <td>
-                                @prescription.PrescriptionDate.ToString("dd/MM/yyyy")
-                            </td>
-
-
-                            <td>
-                                @prescription.LensType
-                            </td>
-
-
-                            <td>
-                                @prescription.LeftEye
-                            </td>
-
-
-                            <td>
-                                @prescription.RightEye
-                            </td>
-
-
-                        </tr>
-
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-file-circle-xmark fa-3x mb-3 text-secondary d-block"></i>
+                            <h6 class="fw-bold text-dark">No Prescriptions Issued</h6>
+                            <p class="small text-muted mb-0">No optical prescriptions have been written for this patient yet.</p>
+                        </div>
                     }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Lens Type</th>
+                                        <th>Left Eye</th>
+                                        <th>Right Eye</th>
+                                        <th>Status</th>
+                                        <th>Instructions / Notes</th>
+                                        <th class="text-end">Print</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var rx in Model.Prescriptions.OrderByDescending(p => p.PrescriptionDate))
+                                    {
+                                        <tr>
+                                            <td><strong>@rx.PrescriptionDate.ToString("dd MMM yyyy")</strong></td>
+                                            <td><span class="badge bg-info text-dark">@rx.LensType</span></td>
+                                            <td><code>@rx.LeftEye</code></td>
+                                            <td><code>@rx.RightEye</code></td>
+                                            <td>
+                                                @if (rx.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Archived</span>
+                                                }
+                                            </td>
+                                            <td><small class="text-muted">@(string.IsNullOrWhiteSpace(rx.Notes) ? "-" : rx.Notes)</small></td>
+                                            <td class="text-end">
+                                                <a asp-action="PrintPrescription" asp-route-id="@rx.Id" class="btn btn-sm btn-outline-primary rounded-pill px-2" title="Print Official Prescription Slip" target="_blank">
+                                                    <i class="fa-solid fa-print"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
 
-
-                    </tbody>
-
-
-                </table>
-
-            }
-            else
-            {
-
-                <p class="text-muted">
-                    No prescriptions found.
-                </p>
-
-            }
-
-
+                <!-- Appointments Tab -->
+                <div class="tab-pane fade" id="appts" role="tabpanel">
+                    @if (Model.Appointments == null || !Model.Appointments.Any())
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-regular fa-calendar-xmark fa-3x mb-3 text-secondary d-block"></i>
+                            <h6 class="fw-bold text-dark">No Appointments Found</h6>
+                            <p class="small text-muted mb-0">This patient has no appointment bookings on record.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time Slot</th>
+                                        <th>Status</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var appt in Model.Appointments.OrderByDescending(a => a.AppointmentDate))
+                                    {
+                                        <tr>
+                                            <td><strong>@appt.AppointmentDate.ToString("dd MMM yyyy")</strong></td>
+                                            <td><span class="badge bg-secondary">@appt.TimeSlot</span></td>
+                                            <td>
+                                                @if (appt.Status == AppointmentStatus.Approved)
+                                                {
+                                                    <span class="badge bg-success">Approved</span>
+                                                }
+                                                else if (appt.Status == AppointmentStatus.Pending)
+                                                {
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Canceled</span>
+                                                }
+                                            </td>
+                                            <td><small class="text-muted">@(string.IsNullOrWhiteSpace(appt.Notes) ? "-" : appt.Notes)</small></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
-
-
     </div>
-
-
-
 </div>
+
+<style>
+    .avatar-circle {
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1E88E5 0%, #0F2D5C 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+    }
+</style>

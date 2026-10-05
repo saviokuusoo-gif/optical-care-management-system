@@ -1,0 +1,183 @@
+@model optical_care_management_system.Models.Prescription
+
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Prescription - Doctor Portal" : "Write Prescription & Medication - Doctor Portal";
+    var selectedExam = ViewBag.SelectedExam as optical_care_management_system.Models.ExaminationRecord;
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">
+                        <i class="fa-solid fa-file-prescription text-success me-2"></i>@(isEdit ? "Edit Medical Prescription" : "Issue Optical Prescription & Medication")
+                    </h2>
+                    <p class="text-muted mb-0">Review diagnostic eye measurements, prescribe optical lenses, and issue medications / eye drops.</p>
+                </div>
+                <a asp-action="Prescriptions" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Back to Prescriptions
+                </a>
+            </div>
+
+            <!-- Eye Measurement (Cabbirka) Display Box -->
+            @if (selectedExam != null)
+            {
+                <div class="card shadow-sm border-0 rounded-4 mb-4 bg-white border-start border-4 border-info">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold text-dark mb-0">
+                                <i class="fa-solid fa-microscope text-info me-2"></i>Diagnostic Refraction Measurements (Cabbirka)
+                            </h5>
+                            <span class="badge bg-light text-dark border">Exam Date: @selectedExam.ExamDate.ToString("dd MMM yyyy")</span>
+                        </div>
+                        <div class="row g-3 text-center">
+                            <div class="col-md-3 col-6">
+                                <div class="p-3 bg-light rounded-3">
+                                    <small class="text-muted d-block fw-semibold">Right Eye (OD)</small>
+                                    <strong class="fs-6 text-primary">@selectedExam.RightEye</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="p-3 bg-light rounded-3">
+                                    <small class="text-muted d-block fw-semibold">Left Eye (OS)</small>
+                                    <strong class="fs-6 text-primary">@selectedExam.LeftEye</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="p-3 bg-light rounded-3">
+                                    <small class="text-muted d-block fw-semibold">Visual Acuity</small>
+                                    <strong class="fs-6 text-dark">@selectedExam.VisualAcuity</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="p-3 bg-light rounded-3">
+                                    <small class="text-muted d-block fw-semibold">Eye Pressure (IOP)</small>
+                                    <strong class="fs-6 text-dark">@selectedExam.EyePressure</strong>
+                                </div>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(selectedExam.Notes))
+                        {
+                            <div class="mt-3 small text-muted">
+                                <strong>Technician Notes:</strong> @selectedExam.Notes
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Main Form Card -->
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+                <div class="card-header py-3" style="background: linear-gradient(135deg, #0F2D5C 0%, #163d7a 100%); color: #ffffff;">
+                    <h5 class="mb-0 fw-bold"><i class="fa-solid fa-prescription me-2"></i>Prescription & Medication Order Details</h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="PrescriptionForm" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="DoctorId" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Patient & Exam Selection -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="PatientId" class="form-label fw-bold text-dark">Patient <span class="text-danger">*</span></label>
+                                <select asp-for="PatientId" class="form-select rounded-3 py-2" asp-items="ViewBag.Patients">
+                                    <option value="">-- Choose Patient --</option>
+                                </select>
+                                <span asp-validation-for="PatientId" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ExaminationRecordId" class="form-label fw-bold text-dark">Linked Eye Exam (Cabbirka) <span class="text-danger">*</span></label>
+                                <select asp-for="ExaminationRecordId" class="form-select rounded-3 py-2" asp-items="ViewBag.ExaminationRecords">
+                                    <option value="">-- Select Linked Exam --</option>
+                                </select>
+                                <span asp-validation-for="ExaminationRecordId" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Lens Type & Prescription Date -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="LensType" class="form-label fw-bold text-dark">Prescribed Lens Type <span class="text-danger">*</span></label>
+                                <select asp-for="LensType" class="form-select rounded-3 py-2">
+                                    <option value="">-- Choose Lens Type --</option>
+                                    <option value="Single Vision">Single Vision</option>
+                                    <option value="Bifocal">Bifocal</option>
+                                    <option value="Progressive / Multifocal">Progressive / Multifocal</option>
+                                    <option value="Blue Light Blocking (Computer)">Blue Light Blocking (Computer)</option>
+                                    <option value="Photochromic / Transition">Photochromic / Transition</option>
+                                    <option value="Anti-Reflective Premium">Anti-Reflective Premium</option>
+                                    <option value="Reading Glasses">Reading Glasses</option>
+                                </select>
+                                <span asp-validation-for="LensType" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="PrescriptionDate" class="form-label fw-bold text-dark">Prescription Date</label>
+                                <input asp-for="PrescriptionDate" type="date" class="form-control rounded-3 py-2" value="@Model.PrescriptionDate.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="PrescriptionDate" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Lens Powers -->
+                        <div class="p-3 mb-4 rounded-4 bg-light border">
+                            <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-glasses text-primary me-2"></i>Optical Lens Parameters (Powers)</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+                                        <label asp-for="RightEye" class="form-label fw-bold text-primary fs-6 mb-2">Right Eye (OD) Power <span class="text-danger">*</span></label>
+                                        <input asp-for="RightEye" class="form-control rounded-3" placeholder="e.g. SPH: -1.25, CYL: -0.50, AXIS: 90" />
+                                        <span asp-validation-for="RightEye" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+                                        <label asp-for="LeftEye" class="form-label fw-bold text-primary fs-6 mb-2">Left Eye (OS) Power <span class="text-danger">*</span></label>
+                                        <input asp-for="LeftEye" class="form-control rounded-3" placeholder="e.g. SPH: -1.50, CYL: -0.25, AXIS: 180" />
+                                        <span asp-validation-for="LeftEye" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prescribed Medication, Eye Drops & Clinical Instructions -->
+                        <div class="mb-4">
+                            <label asp-for="Notes" class="form-label fw-bold text-dark">
+                                <i class="fa-solid fa-prescription-bottle-medical text-danger me-1"></i> Prescribed Medication, Eye Drops, Wear Schedule & Clinical Advice
+                            </label>
+                            <textarea asp-for="Notes" class="form-control rounded-3" rows="4" placeholder="Enter prescribed eye drops (e.g. Moxifloxacin eye drops 3x daily for 7 days), artificial tears, wear instructions, and follow-up advice..."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Active Status Switch -->
+                        <div class="form-check form-switch mb-4 p-3 bg-light rounded-3">
+                            <input asp-for="IsActive" class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="activeSwitch" />
+                            <label class="form-check-label fw-bold text-dark" for="activeSwitch">Active Prescription (Eligible for frame fitting and optical dispensing)</label>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Prescriptions" class="btn btn-outline-secondary rounded-pill px-4">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success rounded-pill px-5 py-2 fw-bold shadow-sm">
+                                <i class="fa-solid fa-save me-1"></i> Save Prescription & Medication
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

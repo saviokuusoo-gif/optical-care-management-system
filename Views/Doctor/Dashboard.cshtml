@@ -1,0 +1,210 @@
+@model optical_care_management_system.Models.DoctorDashboardViewModel
+
+@{
+    ViewData["Title"] = "Doctor Dashboard";
+}
+
+<div class="container mt-4">
+    @if (TempData["Success"] is not null)
+    {
+        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
+            <i class="fa fa-check-circle me-1"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="fa-solid fa-user-doctor text-primary me-2"></i>Welcome, @(Model.Doctor?.FullName ?? "Doctor")
+            </h2>
+            <p class="text-muted mb-0">
+                Specialty: <span class="badge bg-primary">@(Model.Doctor?.Specialty ?? "Eye Specialist")</span> | License: <code>@(Model.Doctor?.LicenseNumber ?? "N/A")</code>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Appointments" class="btn btn-outline-primary">
+                <i class="fa fa-calendar-check me-1"></i> View Appointments
+            </a>
+            <a asp-action="ExaminationRecordForm" class="btn btn-primary">
+                <i class="fa fa-notes-medical me-1"></i> New Eye Examination
+            </a>
+        </div>
+    </div>
+
+    <!-- Metric Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <a asp-action="Appointments" class="card shadow-sm border-0 rounded-3 bg-white p-3 h-100 border-start border-4 border-primary text-decoration-none text-dark d-block card-hover" title="Click to view appointments">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold">TODAY'S APPOINTMENTS</div>
+                        <div class="fs-2 fw-bold text-dark">@Model.TodayAppointmentsCount</div>
+                    </div>
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                        <i class="fa-solid fa-calendar-day fa-xl"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <a asp-action="ExaminationRecords" class="card shadow-sm border-0 rounded-3 bg-white p-3 h-100 border-start border-4 border-info text-decoration-none text-dark d-block card-hover" title="Click to view eye examinations">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold">EYE EXAMINATIONS</div>
+                        <div class="fs-2 fw-bold text-dark">@Model.TotalExaminationsCount</div>
+                    </div>
+                    <div class="p-3 bg-info bg-opacity-10 text-info rounded-circle">
+                        <i class="fa-solid fa-eye fa-xl"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <a asp-action="Prescriptions" class="card shadow-sm border-0 rounded-3 bg-white p-3 h-100 border-start border-4 border-success text-decoration-none text-dark d-block card-hover" title="Click to view prescriptions">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold">PRESCRIPTIONS ISSUED</div>
+                        <div class="fs-2 fw-bold text-dark">@Model.TotalPrescriptionsCount</div>
+                    </div>
+                    <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle">
+                        <i class="fa-solid fa-file-prescription fa-xl"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <a asp-action="Patients" class="card shadow-sm border-0 rounded-3 bg-white p-3 h-100 border-start border-4 border-warning text-decoration-none text-dark d-block card-hover" title="Click to view patients">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold">TREATED PATIENTS</div>
+                        <div class="fs-2 fw-bold text-dark">@Model.TotalPatientsTreatedCount</div>
+                    </div>
+                    <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-circle">
+                        <i class="fa-solid fa-hospital-user fa-xl"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Today's Appointments -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0 fw-bold"><i class="fa-regular fa-calendar-check text-primary me-2"></i>Today's Appointments</h5>
+                    <a asp-action="Appointments" class="btn btn-sm btn-link text-decoration-none">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Time Slot</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.TodayAppointments.Any())
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            <i class="fa-regular fa-clock fa-2x mb-2 text-secondary d-block"></i>
+                                            No appointments scheduled for today.
+                                        </td>
+                                    </tr>
+                                }
+                                @foreach (var appt in Model.TodayAppointments)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold">@(appt.Patient?.FullName ?? "Unknown")</div>
+                                            <small class="text-muted">@(appt.Patient?.Phone ?? "-")</small>
+                                        </td>
+                                        <td><span class="badge bg-secondary">@appt.TimeSlot</span></td>
+                                        <td>
+                                            @if (appt.Status == AppointmentStatus.Approved)
+                                            {
+                                                <span class="badge bg-success">Approved</span>
+                                            }
+                                            else if (appt.Status == AppointmentStatus.Pending)
+                                            {
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Canceled</span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <a asp-action="ExaminationRecordForm" asp-route-patientId="@appt.PatientId" asp-route-appointmentId="@appt.Id" class="btn btn-sm btn-primary">
+                                                <i class="fa fa-stethoscope"></i> Examine
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Examinations & Prescriptions -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0 fw-bold"><i class="fa-solid fa-microscope text-info me-2"></i>Recent Examinations</h5>
+                    <a asp-action="ExaminationRecords" class="btn btn-sm btn-link text-decoration-none">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Date</th>
+                                    <th>Visual Acuity</th>
+                                    <th class="text-end">Prescription</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.RecentExaminations.Any())
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            <i class="fa-solid fa-eye-slash fa-2x mb-2 text-secondary d-block"></i>
+                                            No examinations conducted yet.
+                                        </td>
+                                    </tr>
+                                }
+                                @foreach (var exam in Model.RecentExaminations)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold">@(exam.Patient?.FullName ?? "Unknown")</div>
+                                        </td>
+                                        <td>@exam.ExamDate.ToString("dd MMM yyyy")</td>
+                                        <td><span class="badge bg-light text-dark border">@exam.VisualAcuity</span></td>
+                                        <td class="text-end">
+                                            <a asp-action="PrescriptionForm" asp-route-patientId="@exam.PatientId" asp-route-examId="@exam.Id" class="btn btn-sm btn-outline-success">
+                                                <i class="fa fa-plus"></i> Prescribe
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

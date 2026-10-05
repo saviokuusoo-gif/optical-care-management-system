@@ -1,0 +1,101 @@
+@model optical_care_management_system.Models.ExaminationRecord
+
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Examination Record" : "Conduct Eye Examination";
+    var apptId = ViewBag.AppointmentId as int?;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0 fw-bold">
+                        <i class="fa-solid fa-stethoscope me-2"></i>@(isEdit ? "Edit Examination Record" : "Conduct Eye Examination")
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="ExaminationRecordForm" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="DoctorId" />
+                        @if (apptId.HasValue)
+                        {
+                            <input type="hidden" name="appointmentId" value="@apptId.Value" />
+                        }
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Patient & Date -->
+                        <div class="row mb-3">
+                            <div class="col-md-7">
+                                <label asp-for="PatientId" class="form-label fw-semibold">Patient <span class="text-danger">*</span></label>
+                                <select asp-for="PatientId" class="form-select" asp-items="ViewBag.Patients">
+                                    <option value="">-- Select Patient --</option>
+                                </select>
+                                <span asp-validation-for="PatientId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-5">
+                                <label asp-for="ExamDate" class="form-label fw-semibold">Exam Date</label>
+                                <input asp-for="ExamDate" type="date" class="form-control" value="@Model.ExamDate.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="ExamDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Eye Readings -->
+                        <div class="card bg-light border-0 p-3 mb-3 rounded-3">
+                            <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-glasses me-2"></i>Refraction & Eye Measurements</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label asp-for="LeftEye" class="form-label fw-semibold">Left Eye (OS) <span class="text-danger">*</span></label>
+                                    <input asp-for="LeftEye" class="form-control" placeholder="e.g. -1.50 DS / -0.50 DC x 180" />
+                                    <span asp-validation-for="LeftEye" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="RightEye" class="form-label fw-semibold">Right Eye (OD) <span class="text-danger">*</span></label>
+                                    <input asp-for="RightEye" class="form-control" placeholder="e.g. -1.25 DS / -0.25 DC x 90" />
+                                    <span asp-validation-for="RightEye" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label asp-for="VisualAcuity" class="form-label fw-semibold">Visual Acuity <span class="text-danger">*</span></label>
+                                    <input asp-for="VisualAcuity" class="form-control" placeholder="e.g. 6/6, 20/20, 6/9" />
+                                    <span asp-validation-for="VisualAcuity" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="EyePressure" class="form-label fw-semibold">Eye Pressure (IOP) <span class="text-danger">*</span></label>
+                                    <input asp-for="EyePressure" class="form-control" placeholder="e.g. 15 mmHg / 16 mmHg" />
+                                    <span asp-validation-for="EyePressure" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="mb-4">
+                            <label asp-for="Notes" class="form-label fw-semibold">Clinical Findings & Doctor Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Enter findings, cornea health, pupil reflex, or recommendations..."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="ExaminationRecords" class="btn btn-outline-secondary">
+                                <i class="fa fa-arrow-left me-1"></i> Back to List
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 fw-bold">
+                                <i class="fa fa-save me-1"></i> Save Examination
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

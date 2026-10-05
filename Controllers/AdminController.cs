@@ -63,16 +63,18 @@ public class AdminController : Controller
             return View(patient);
         }
 
-        if (id is null)
+        var isNew = (id == null || id == 0) && patient.Id == 0;
+        if (isNew)
         {
             patient.CreatedAt = DateTime.UtcNow;
             _context.Patients.Add(patient);
         }
         else
         {
+            var targetId = (id != null && id > 0) ? id.Value : patient.Id;
             // Copy only the editable fields so the linked login account and the
             // original registration date survive an edit.
-            var existing = await _context.Patients.FindAsync(id.Value);
+            var existing = await _context.Patients.FindAsync(targetId);
 
             if (existing is null)
             {
@@ -146,53 +148,199 @@ public class AdminController : Controller
         return View(patient);
     }
 
+    // NEW: Doctor Details & Work Activity Audit
+    public async Task<IActionResult> DoctorDetails(int id)
+    {
+        var doctor = await _context.Doctors
+            .Include(d => d.UserAccount)
+            .FirstOrDefaultAsync(d => d.Id == id);
+
+        if (doctor is null)
+        {
+            return NotFound();
+        }
+
+        var appointments = await _context.Appointments
+            .Include(a => a.Patient)
+            .Where(a => a.DoctorId == id)
+            .OrderByDescending(a => a.AppointmentDate)
+            .ToListAsync();
+
+        var examinations = await _context.ExaminationRecords
+            .Include(e => e.Patient)
+            .Where(e => e.DoctorId == id)
+            .OrderByDescending(e => e.ExamDate)
+            .ToListAsync();
+
+        var prescriptions = await _context.Prescriptions
+            .Include(p => p.Patient)
+            .Include(p => p.ExaminationRecord)
+            .Where(p => p.DoctorId == id)
+            .OrderByDescending(p => p.PrescriptionDate)
+            .ToListAsync();
+
+        var patientIds = appointments.Select(a => a.PatientId)
+            .Union(examinations.Select(e => e.PatientId))
+            .Union(prescriptions.Select(p => p.PatientId))
+            .Distinct()
+            .ToList();
+
+        var treatedPatients = await _context.Patients
+            .Where(p => patientIds.Contains(p.Id))
+            .OrderBy(p => p.FullName)
+            .ToListAsync();
+
+        var viewModel = new DoctorDetailsViewModel
+        {
+            Doctor = doctor,
+            Appointments = appointments,
+            ExaminationRecords = examinations,
+            Prescriptions = prescriptions,
+            TreatedPatients = treatedPatients
+        };
+
+        return View(viewModel);
+    }
+
     public async Task<IActionResult> Doctors()
     {
-        var doctors = await _context.Doctors.OrderByDescending(d => d.CreatedAt).ToListAsync();
+        var doctors = await _context.Doctors
+            .Include(d => d.UserAccount)
+            .Include(d => d.Appointments)
+            .Include(d => d.ExaminationRecords)
+            .Include(d => d.Prescriptions)
+            .OrderByDescending(d => d.CreatedAt)
+            .ToListAsync();
         return View(doctors);
     }
 
     [HttpGet]
     public async Task<IActionResult> DoctorForm(int? id)
     {
-        var doctor = id is null ? new Doctor() : await _context.Doctors.FindAsync(id.Value);
+        if (id is null)
+        {
+            return View(new DoctorFormViewModel());
+        }
+
+        var doctor = await _context.Doctors
+            .Include(d => d.UserAccount)
+            .FirstOrDefaultAsync(d => d.Id == id.Value);
+
         if (doctor is null)
         {
             return NotFound();
         }
 
-        return View(doctor);
+        var vm = new DoctorFormViewModel
+        {
+            Id = doctor.Id,
+            FullName = doctor.FullName,
+            Email = doctor.Email,
+            Phone = doctor.Phone,
+            Specialty = doctor.Specialty,
+            LicenseNumber = doctor.LicenseNumber,
+            Username = doctor.UserAccount?.Username
+        };
+
+        return View(vm);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DoctorForm(int? id, Doctor doctor)
+    public async Task<IActionResult> DoctorForm(int? id, DoctorFormViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            return View(doctor);
+            return View(model);
         }
+
+        var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<UserAccount>();
 
         if (id is null)
         {
-            doctor.CreatedAt = DateTime.UtcNow;
+            int? userAccountId = null;
+            if (!string.IsNullOrWhiteSpace(model.Username))
+            {
+                var existingUser = await _context.UserAccounts.FirstOrDefaultAsync(u => u.Username == model.Username || u.Email == model.Email);
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("Username", "A user account with this username or email already exists.");
+                    return View(model);
+                }
+
+                var userAccount = new UserAccount
+                {
+                    Username = model.Username,
+                    Email = model.Email,
+                    FullName = model.FullName,
+                    Role = UserRole.Doctor,
+                    CreatedAt = DateTime.UtcNow
+                };
+                userAccount.PasswordHash = passwordHasher.HashPassword(userAccount, string.IsNullOrWhiteSpace(model.Password) ? "Doctor@123" : model.Password);
+
+                _context.UserAccounts.Add(userAccount);
+                await _context.SaveChangesAsync();
+                userAccountId = userAccount.Id;
+            }
+
+            var doctor = new Doctor
+            {
+                FullName = model.FullName,
+                Email = model.Email,
+                Phone = model.Phone,
+                Specialty = model.Specialty,
+                LicenseNumber = model.LicenseNumber,
+                UserAccountId = userAccountId,
+                CreatedAt = DateTime.UtcNow
+            };
+
             _context.Doctors.Add(doctor);
         }
         else
         {
-            // Preserve the linked login account and original join date on edit.
-            var existing = await _context.Doctors.FindAsync(id.Value);
+            var existing = await _context.Doctors
+                .Include(d => d.UserAccount)
+                .FirstOrDefaultAsync(d => d.Id == id.Value);
 
             if (existing is null)
             {
                 return NotFound();
             }
 
-            existing.FullName = doctor.FullName;
-            existing.Email = doctor.Email;
-            existing.Phone = doctor.Phone;
-            existing.Specialty = doctor.Specialty;
-            existing.LicenseNumber = doctor.LicenseNumber;
+            existing.FullName = model.FullName;
+            existing.Email = model.Email;
+            existing.Phone = model.Phone;
+            existing.Specialty = model.Specialty;
+            existing.LicenseNumber = model.LicenseNumber;
+
+            if (existing.UserAccount != null)
+            {
+                existing.UserAccount.FullName = model.FullName;
+                existing.UserAccount.Email = model.Email;
+                if (!string.IsNullOrWhiteSpace(model.Username))
+                {
+                    existing.UserAccount.Username = model.Username;
+                }
+                if (!string.IsNullOrWhiteSpace(model.Password))
+                {
+                    existing.UserAccount.PasswordHash = passwordHasher.HashPassword(existing.UserAccount, model.Password);
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(model.Username))
+            {
+                var newUser = new UserAccount
+                {
+                    Username = model.Username,
+                    Email = model.Email,
+                    FullName = model.FullName,
+                    Role = UserRole.Doctor,
+                    CreatedAt = DateTime.UtcNow
+                };
+                newUser.PasswordHash = passwordHasher.HashPassword(newUser, string.IsNullOrWhiteSpace(model.Password) ? "Doctor@123" : model.Password);
+                _context.UserAccounts.Add(newUser);
+                await _context.SaveChangesAsync();
+                existing.UserAccountId = newUser.Id;
+            }
         }
 
         await _context.SaveChangesAsync();
@@ -228,15 +376,63 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Doctors));
     }
 
-    public async Task<IActionResult> Appointments()
+    public async Task<IActionResult> Appointments(string? status)
     {
-        var appointments = await _context.Appointments
+        var query = _context.Appointments
             .Include(a => a.Patient)
             .Include(a => a.Doctor)
+            .AsQueryable();
+
+        var allAppointments = await query.ToListAsync();
+        ViewBag.TotalCount = allAppointments.Count;
+        ViewBag.PendingCount = allAppointments.Count(a => a.Status == AppointmentStatus.Pending);
+        ViewBag.ApprovedCount = allAppointments.Count(a => a.Status == AppointmentStatus.Approved);
+        ViewBag.CanceledCount = allAppointments.Count(a => a.Status == AppointmentStatus.Canceled);
+        ViewBag.Status = status;
+
+        if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<AppointmentStatus>(status, true, out var statusEnum))
+        {
+            query = query.Where(a => a.Status == statusEnum);
+        }
+
+        var filtered = await query
             .OrderByDescending(a => a.AppointmentDate)
+            .ThenBy(a => a.TimeSlot)
             .ToListAsync();
 
-        return View(appointments);
+        return View(filtered);
+    }
+
+    public async Task<IActionResult> PrintPrescription(int id)
+    {
+        var prescription = await _context.Prescriptions
+            .Include(p => p.Patient)
+            .Include(p => p.Doctor)
+            .Include(p => p.ExaminationRecord)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (prescription is null)
+        {
+            return NotFound();
+        }
+
+        return View("~/Views/Shared/PrintPrescription.cshtml", prescription);
+    }
+
+    public async Task<IActionResult> PrintExamination(int id)
+    {
+        var exam = await _context.ExaminationRecords
+            .Include(e => e.Patient)
+            .Include(e => e.Doctor)
+            .Include(e => e.Prescriptions)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (exam is null)
+        {
+            return NotFound();
+        }
+
+        return View("~/Views/Shared/PrintExamination.cshtml", exam);
     }
 
     [HttpGet]
@@ -264,13 +460,23 @@ public class AdminController : Controller
             return View(appointment);
         }
 
-        if (id is null)
+        var isNew = (id == null || id == 0) && appointment.Id == 0;
+        if (isNew)
         {
             _context.Appointments.Add(appointment);
         }
         else
         {
-            _context.Appointments.Update(appointment);
+            var targetId = (id != null && id > 0) ? id.Value : appointment.Id;
+            var existing = await _context.Appointments.FindAsync(targetId);
+            if (existing is null) return NotFound();
+
+            existing.PatientId = appointment.PatientId;
+            existing.DoctorId = appointment.DoctorId;
+            existing.AppointmentDate = appointment.AppointmentDate;
+            existing.TimeSlot = appointment.TimeSlot;
+            existing.Notes = appointment.Notes;
+            existing.Status = appointment.Status;
         }
 
         await _context.SaveChangesAsync();
@@ -290,7 +496,7 @@ public class AdminController : Controller
 
         appointment.Status = status;
         await _context.SaveChangesAsync();
-        TempData["Success"] = $"Appointment marked {status.ToString().ToLowerInvariant()}.";
+        TempData["Success"] = $"Appointment status updated to {status}.";
         return RedirectToAction(nameof(Appointments));
     }
 
@@ -346,13 +552,25 @@ public class AdminController : Controller
             return View(record);
         }
 
-        if (id is null)
+        var isNew = (id == null || id == 0) && record.Id == 0;
+        if (isNew)
         {
             _context.ExaminationRecords.Add(record);
         }
         else
         {
-            _context.ExaminationRecords.Update(record);
+            var targetId = (id != null && id > 0) ? id.Value : record.Id;
+            var existing = await _context.ExaminationRecords.FindAsync(targetId);
+            if (existing is null) return NotFound();
+
+            existing.PatientId = record.PatientId;
+            existing.DoctorId = record.DoctorId;
+            existing.ExamDate = record.ExamDate;
+            existing.LeftEye = record.LeftEye;
+            existing.RightEye = record.RightEye;
+            existing.VisualAcuity = record.VisualAcuity;
+            existing.EyePressure = record.EyePressure;
+            existing.Notes = record.Notes;
         }
 
         await _context.SaveChangesAsync();
@@ -398,59 +616,25 @@ public class AdminController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> PrescriptionForm(int? id)
+    public IActionResult PrescriptionForm(int? id)
     {
-        var prescription = id is null ? new Prescription() : await _context.Prescriptions.FindAsync(id.Value);
-        if (prescription is null)
-        {
-            return NotFound();
-        }
-
-        ViewBag.Patients = new SelectList(await _context.Patients.ToListAsync(), "Id", "FullName");
-        ViewBag.Doctors = new SelectList(await _context.Doctors.ToListAsync(), "Id", "FullName");
-        ViewBag.ExaminationRecords = new SelectList(await _context.ExaminationRecords.ToListAsync(), "Id", "Id");
-        return View(prescription);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PrescriptionForm(int? id, Prescription prescription)
-    {
-        if (!ModelState.IsValid)
-        {
-            ViewBag.Patients = new SelectList(await _context.Patients.ToListAsync(), "Id", "FullName");
-            ViewBag.Doctors = new SelectList(await _context.Doctors.ToListAsync(), "Id", "FullName");
-            ViewBag.ExaminationRecords = new SelectList(await _context.ExaminationRecords.ToListAsync(), "Id", "Id");
-            return View(prescription);
-        }
-
-        if (id is null)
-        {
-            _context.Prescriptions.Add(prescription);
-        }
-        else
-        {
-            _context.Prescriptions.Update(prescription);
-        }
-
-        await _context.SaveChangesAsync();
-        TempData["Success"] = "Prescription saved.";
+        TempData["Error"] = "Medical Governance: Prescriptions can only be created and edited by attending doctors. Admin has view and print permissions only.";
         return RedirectToAction(nameof(Prescriptions));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeletePrescription(int id)
+    public IActionResult PrescriptionForm(int? id, Prescription prescription)
     {
-        var prescription = await _context.Prescriptions.FindAsync(id);
-        if (prescription is null)
-        {
-            return NotFound();
-        }
+        TempData["Error"] = "Medical Governance: Prescriptions can only be created and edited by attending doctors. Admin has view and print permissions only.";
+        return RedirectToAction(nameof(Prescriptions));
+    }
 
-        _context.Prescriptions.Remove(prescription);
-        await _context.SaveChangesAsync();
-        TempData["Success"] = "Prescription deleted.";
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult DeletePrescription(int id)
+    {
+        TempData["Error"] = "Medical Governance: Prescriptions are legal clinical records authored by doctors and cannot be deleted by Admin.";
         return RedirectToAction(nameof(Prescriptions));
     }
 

@@ -6,7 +6,8 @@ namespace optical_care_management_system.Models;
 public enum UserRole
 {
     Admin,
-    Patient
+    Patient,
+    Doctor
 }
 
 public enum AppointmentStatus

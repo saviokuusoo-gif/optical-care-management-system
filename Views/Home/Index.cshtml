@@ -1,10 +1,331 @@
-﻿@{
-    ViewData["Title"] = "Home";
+@{
+    ViewData["Title"] = "Home - Advanced Optical Care & Eyewear";
+    ViewData["FullWidth"] = true;
 }
 
-<div class="container-fluid p-0">
-    <img src="~/image/hero.jpg"
-         alt="Optical Care"
-         class="img-fluid w-100"
-         style="height:600px; object-fit:cover;">
-</div>
+<!-- Hero Section -->
+<section class="position-relative overflow-hidden py-5" style="background: linear-gradient(135deg, #f0f7ff 0%, #e0edfc 50%, #ffffff 100%);">
+    <div class="container py-lg-4">
+        <div class="row align-items-center g-5">
+            <!-- Left Text Content -->
+            <div class="col-lg-6">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-white shadow-sm border border-primary border-opacity-25 mb-3">
+                    <span class="badge bg-primary rounded-pill"><i class="fa-solid fa-sparkles text-warning me-1"></i> New</span>
+                    <span class="small fw-semibold text-primary">Advanced Clinical Eye Care & Luxury Frames</span>
+                </div>
+
+                <h1 class="display-4 fw-bold text-dark lh-tight mb-3">
+                    Clear Vision For A <span class="text-primary text-gradient" style="background: linear-gradient(135deg, #0F2D5C 0%, #1E88E5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Brighter Life.</span>
+                </h1>
+
+                <p class="lead text-secondary mb-4 fs-6" style="line-height: 1.7;">
+                    Experience precision eye examinations, certified optometrist consultations, and a curated collection of premium designer eyewear crafted for perfect clarity and comfort.
+                </p>
+
+                <div class="d-flex flex-wrap gap-3 mb-5">
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="Admin" asp-action="Dashboard" class="btn btn-primary btn-lg px-4 py-3 rounded-pill fw-bold shadow-sm">
+                                <i class="fa-solid fa-gauge me-2"></i>Admin Dashboard
+                            </a>
+                        }
+                        else if (User.IsInRole("Doctor"))
+                        {
+                            <a asp-controller="Doctor" asp-action="Dashboard" class="btn btn-primary btn-lg px-4 py-3 rounded-pill fw-bold shadow-sm">
+                                <i class="fa-solid fa-user-doctor me-2"></i>Doctor Dashboard
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Patient" asp-action="BookAppointment" class="btn btn-primary btn-lg px-4 py-3 rounded-pill fw-bold shadow-sm">
+                                <i class="fa-regular fa-calendar-check me-2"></i>Book Eye Exam
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg px-4 py-3 rounded-pill fw-bold shadow-sm">
+                            <i class="fa-regular fa-calendar-check me-2"></i>Book Eye Exam
+                        </a>
+                    }
+                    <a asp-controller="Frames" asp-action="Index" class="btn btn-outline-dark btn-lg px-4 py-3 rounded-pill fw-semibold">
+                        <i class="fa-solid fa-glasses me-2"></i>Explore Frames Collection
+                    </a>
+                </div>
+
+                <!-- Trust Points -->
+                <div class="row g-3 pt-3 border-top border-secondary border-opacity-25">
+                    <div class="col-4">
+                        <div class="fw-bold text-dark fs-5">10,000+</div>
+                        <div class="small text-muted">Happy Patients</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="fw-bold text-dark fs-5">100%</div>
+                        <div class="small text-muted">Verified Doctors</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="fw-bold text-dark fs-5">500+</div>
+                        <div class="small text-muted">Frame Styles</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Hero Image with Floating Cards -->
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <!-- Main Hero Image Frame -->
+                    <div class="rounded-4 overflow-hidden shadow-lg border border-white border-4 position-relative">
+                        <img src="~/image/hero.jpg" alt="Optometrist examining patient" class="img-fluid w-100 object-fit-cover" style="height: 440px;" />
+                        <div class="position-absolute bottom-0 start-0 w-100 p-3" style="background: linear-gradient(180deg, transparent 0%, rgba(15, 45, 92, 0.75) 100%);">
+                            <span class="badge bg-primary px-3 py-2 rounded-pill"><i class="fa-solid fa-circle-check me-1 text-success"></i> Modern Diagnostic Equipment</span>
+                        </div>
+                    </div>
+
+                    <!-- Floating Badge 1 (Top Right) -->
+                    <div class="position-absolute top-0 end-0 translate-middle-y me-3 bg-white p-3 rounded-4 shadow-lg border border-light d-flex align-items-center gap-3">
+                        <div class="p-2 bg-success bg-opacity-10 text-success rounded-circle">
+                            <i class="fa-solid fa-user-doctor fa-xl"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark small">Certified Specialists</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Daily Clinic Care</div>
+                        </div>
+                    </div>
+
+                    <!-- Floating Badge 2 (Bottom Left) -->
+                    <div class="position-absolute bottom-0 start-0 translate-middle-y ms-3 mb-2 bg-white p-3 rounded-4 shadow-lg border border-light d-flex align-items-center gap-3">
+                        <div class="p-2 bg-warning bg-opacity-10 text-warning rounded-circle">
+                            <i class="fa-solid fa-star fa-xl"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark small">4.9 / 5.0 Rating</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Trusted by Community</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Core Clinical Services -->
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold mb-2">Our Clinical Services</span>
+            <h2 class="fw-bold text-dark">Comprehensive Optical Care Solutions</h2>
+            <p class="text-muted">From thorough digital refractions to designer frame tailoring, our eye specialists provide personalized care for you and your family.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Service 1 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 service-card text-center hover-lift transition">
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-4 d-inline-block mx-auto mb-3" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-stethoscope fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Complete Eye Exams</h5>
+                    <p class="text-muted small mb-0">High-precision computerized visual acuity and refraction analysis to pinpoint your exact prescription.</p>
+                </div>
+            </div>
+
+            <!-- Service 2 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 service-card text-center hover-lift transition">
+                    <div class="p-3 bg-info bg-opacity-10 text-info rounded-4 d-inline-block mx-auto mb-3" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-eye fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Eye Health & IOP</h5>
+                    <p class="text-muted small mb-0">Early detection screening for intraocular eye pressure, glaucoma risk, cornea health, and retinal wellness.</p>
+                </div>
+            </div>
+
+            <!-- Service 3 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 service-card text-center hover-lift transition">
+                    <div class="p-3 bg-success bg-opacity-10 text-success rounded-4 d-inline-block mx-auto mb-3" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-glasses fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Designer Eyewear</h5>
+                    <p class="text-muted small mb-0">A hand-selected catalogue of lightweight titanium, stylish acetate, and classic metallic frames.</p>
+                </div>
+            </div>
+
+            <!-- Service 4 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 service-card text-center hover-lift transition">
+                    <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-4 d-inline-block mx-auto mb-3" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-shield-halved fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Blue Light Defense</h5>
+                    <p class="text-muted small mb-0">Custom anti-reflective and blue-filtering lenses designed to alleviate computer and digital screen strain.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Frames Collection Preview -->
+<section class="py-5" style="background-color: #f8fafc;">
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+            <div>
+                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold mb-2">Trending Eyewear</span>
+                <h2 class="fw-bold text-dark mb-0">Featured Designer Frames</h2>
+            </div>
+            <a asp-controller="Frames" asp-action="Index" class="btn btn-outline-primary rounded-pill px-4 fw-semibold">
+                View Full Catalogue <i class="fa fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <!-- Frame 1 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white hover-shadow transition">
+                    <div class="position-relative p-4 text-center bg-light">
+                        <img src="~/images/frames/round-gold-luxury.jpg" alt="Luna Luxe Gold" class="img-fluid rounded-3" style="height: 180px; object-fit: contain;" onerror="this.src='/images/frames/default-frame.jpg'" />
+                        <span class="badge bg-dark position-absolute top-0 start-0 m-3 px-3 py-2 rounded-pill">Titanium</span>
+                        <span class="badge bg-success position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill">In Stock</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h5 class="fw-bold text-dark mb-0">Luna Luxe</h5>
+                            <span class="fs-5 fw-bold text-primary">$169.99</span>
+                        </div>
+                        <p class="text-muted small mb-3">ClearVision &bull; Round &bull; Matte Gold</p>
+                        <a asp-controller="Frames" asp-action="Index" class="btn btn-sm btn-outline-dark w-100 rounded-pill fw-semibold">
+                            <i class="fa fa-eye me-1"></i> View Frame Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Frame 2 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white hover-shadow transition">
+                    <div class="position-relative p-4 text-center bg-light">
+                        <img src="~/images/frames/square-black-acetate.jpg" alt="Aeris Modern Black" class="img-fluid rounded-3" style="height: 180px; object-fit: contain;" onerror="this.src='/images/frames/default-frame.jpg'" />
+                        <span class="badge bg-dark position-absolute top-0 start-0 m-3 px-3 py-2 rounded-pill">Acetate</span>
+                        <span class="badge bg-success position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill">In Stock</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h5 class="fw-bold text-dark mb-0">Aeris Modern</h5>
+                            <span class="fs-5 fw-bold text-primary">$129.50</span>
+                        </div>
+                        <p class="text-muted small mb-3">Optique Studio &bull; Square &bull; Classic Black</p>
+                        <a asp-controller="Frames" asp-action="Index" class="btn btn-sm btn-outline-dark w-100 rounded-pill fw-semibold">
+                            <i class="fa fa-eye me-1"></i> View Frame Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Frame 3 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white hover-shadow transition">
+                    <div class="position-relative p-4 text-center bg-light">
+                        <img src="~/images/frames/rectangle-black-professional.jpg" alt="Solara Edge Gunmetal" class="img-fluid rounded-3" style="height: 180px; object-fit: contain;" onerror="this.src='/images/frames/default-frame.jpg'" />
+                        <span class="badge bg-dark position-absolute top-0 start-0 m-3 px-3 py-2 rounded-pill">Mixed Metal</span>
+                        <span class="badge bg-primary position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill">Popular</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h5 class="fw-bold text-dark mb-0">Solara Edge</h5>
+                            <span class="fs-5 fw-bold text-primary">$189.00</span>
+                        </div>
+                        <p class="text-muted small mb-3">Visionary Craft &bull; Rectangle &bull; Gunmetal</p>
+                        <a asp-controller="Frames" asp-action="Index" class="btn btn-sm btn-outline-dark w-100 rounded-pill fw-semibold">
+                            <i class="fa fa-eye me-1"></i> View Frame Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works (3 Simple Steps) -->
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-semibold mb-2">How It Works</span>
+            <h2 class="fw-bold text-dark">Your Journey to Perfect Vision in 3 Steps</h2>
+            <p class="text-muted">We have streamlined every step of eye care so you can book easily and receive quick, professional results.</p>
+        </div>
+
+        <div class="row g-4 text-center">
+            <!-- Step 1 -->
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 bg-light h-100 position-relative">
+                    <div class="badge bg-primary fs-5 rounded-circle p-3 mb-3" style="width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;">1</div>
+                    <h5 class="fw-bold text-dark">Book Online</h5>
+                    <p class="text-muted small mb-0">Choose your convenient date, time slot, and preferred specialist doctor through our portal in seconds.</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 bg-light h-100 position-relative">
+                    <div class="badge bg-info text-white fs-5 rounded-circle p-3 mb-3" style="width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;">2</div>
+                    <h5 class="fw-bold text-dark">Clinical Examination</h5>
+                    <p class="text-muted small mb-0">Meet your certified eye doctor for advanced vision testing, ocular pressure check, and precision diagnosis.</p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 bg-light h-100 position-relative">
+                    <div class="badge bg-success fs-5 rounded-circle p-3 mb-3" style="width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;">3</div>
+                    <h5 class="fw-bold text-dark">Custom Frame & Lenses</h5>
+                    <p class="text-muted small mb-0">Receive your optical prescription, select your dream frames, and enjoy crystal-clear vision with customized lenses.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="py-5 text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #0F2D5C 0%, #13396C 50%, #1E88E5 100%);">
+    <div class="container py-4 text-center position-relative z-1">
+        <h2 class="display-5 fw-bold mb-3">Ready to Experience Crystal-Clear Vision?</h2>
+        <p class="lead text-white-50 max-w-700 mx-auto mb-4 fs-6">
+            Book your comprehensive eye checkup today or contact our clinic to speak with our certified optometrists.
+        </p>
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <a asp-controller="Patient" asp-action="BookAppointment" class="btn btn-warning btn-lg px-5 py-3 rounded-pill fw-bold text-dark shadow">
+                    <i class="fa-regular fa-calendar-check me-2"></i>Book Your Appointment Now
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Register" class="btn btn-warning btn-lg px-5 py-3 rounded-pill fw-bold text-dark shadow">
+                    <i class="fa-regular fa-calendar-check me-2"></i>Book Your Appointment Now
+                </a>
+            }
+            <a href="tel:+252906786218" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill fw-semibold">
+                <i class="fa-solid fa-phone me-2"></i>+252 906786218
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+    .hover-lift {
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+    }
+    .hover-shadow:hover {
+        box-shadow: 0 12px 30px rgba(15, 45, 92, 0.12) !important;
+    }
+    .hover-white:hover {
+        color: #ffffff !important;
+    }
+</style>

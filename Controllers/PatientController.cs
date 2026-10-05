@@ -29,7 +29,15 @@ public class PatientController : Controller
             .Take(5)
             .ToListAsync();
 
+        var totalAppointments = await _context.Appointments.CountAsync(a => a.PatientId == patient.Id);
+        var totalPrescriptions = await _context.Prescriptions.CountAsync(p => p.PatientId == patient.Id);
+        var totalVisits = await _context.ExaminationRecords.CountAsync(e => e.PatientId == patient.Id);
+
         ViewBag.Patient = patient;
+        ViewBag.TotalAppointments = totalAppointments;
+        ViewBag.TotalPrescriptions = totalPrescriptions;
+        ViewBag.TotalVisits = totalVisits;
+
         return View(appointments);
     }
 
@@ -119,6 +127,25 @@ public class PatientController : Controller
             .ToListAsync();
 
         return View(prescriptions);
+    }
+
+    public async Task<IActionResult> PrintPrescription(int id)
+    {
+        var patient = await GetCurrentPatientAsync();
+        if (patient is null) return RedirectToAction("Logout", "Account");
+
+        var prescription = await _context.Prescriptions
+            .Include(p => p.Patient)
+            .Include(p => p.Doctor)
+            .Include(p => p.ExaminationRecord)
+            .FirstOrDefaultAsync(p => p.Id == id && p.PatientId == patient.Id);
+
+        if (prescription is null)
+        {
+            return NotFound();
+        }
+
+        return View("~/Views/Shared/PrintPrescription.cshtml", prescription);
     }
 
     [HttpGet]

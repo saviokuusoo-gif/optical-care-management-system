@@ -1,105 +1,177 @@
 @model optical_care_management_system.Models.DashboardViewModel
 
 @{
-    ViewData["Title"] = "System Reports";
+    ViewData["Title"] = "System Reports & Analytics - Optical Care";
     var inventory = ViewBag.Inventory as List<optical_care_management_system.Models.InventoryItem>
                     ?? new List<optical_care_management_system.Models.InventoryItem>();
     var appointments = ViewBag.Appointments as List<optical_care_management_system.Models.Appointment>
                        ?? new List<optical_care_management_system.Models.Appointment>();
 }
 
-<div class="container mt-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+<div class="container mt-4 mb-5">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-            <h2>System Reports</h2>
-            <p class="text-muted mb-0">Clinic-wide summary at a glance.</p>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="fa-solid fa-chart-pie text-primary me-2"></i>System Reports & Operations Analytics
+            </h2>
+            <p class="text-muted mb-0">Live summary of optical clinic operations, inventory valuation, and appointment volumes.</p>
         </div>
-        @await Html.PartialAsync("_RecordToolbar", new optical_care_management_system.Models.RecordToolbarModel
-        {
-            Title = "System Report",
-            ExportAction = "ExportReports"
-        })
+        <div class="d-flex gap-2 flex-wrap no-print">
+            @await Html.PartialAsync("_RecordToolbar", new optical_care_management_system.Models.RecordToolbarModel
+            {
+                Title = "System Report",
+                ExportAction = "ExportReports"
+            })
+        </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="row g-3">
-        <div class="col-md-3"><div class="card p-3 bg-primary text-white">Total Patients: @Model.TotalPatients</div></div>
-        <div class="col-md-3"><div class="card p-3 bg-info text-white">Today's Appointments: @Model.TodayAppointments</div></div>
-        <div class="col-md-3"><div class="card p-3 bg-success text-white">Active Doctors: @Model.ActiveDoctors</div></div>
-        <div class="col-md-3"><div class="card p-3 bg-warning text-white">Low Stock Items: @Model.LowInventoryItems</div></div>
+    <!-- Quick Stats Cards -->
+    <div class="row g-3 mb-5">
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Total Patients</div>
+                        <div class="fs-2 fw-bold text-dark">@Model.TotalPatients</div>
+                    </div>
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                        <i class="fa-solid fa-users fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-info">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Today's Visits</div>
+                        <div class="fs-2 fw-bold text-dark">@Model.TodayAppointments</div>
+                    </div>
+                    <div class="p-3 bg-info bg-opacity-10 text-info rounded-circle">
+                        <i class="fa-solid fa-calendar-check fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Active Doctors</div>
+                        <div class="fs-2 fw-bold text-dark">@Model.ActiveDoctors</div>
+                    </div>
+                    <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle">
+                        <i class="fa-solid fa-user-doctor fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-danger">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Low Stock Items</div>
+                        <div class="fs-2 fw-bold @(Model.LowInventoryItems > 0 ? "text-danger" : "text-dark")">@Model.LowInventoryItems</div>
+                    </div>
+                    <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-circle">
+                        <i class="fa-solid fa-triangle-exclamation fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Inventory Table -->
-    <h3 class="mt-5">Inventory Status</h3>
-    <div class="table-responsive">
-        <table class="table table-bordered align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Item Name</th>
-                    <th>Category</th>
-                    <th class="text-end">Stock Quantity</th>
-                    <th class="text-end">Unit Price</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!inventory.Any())
-                {
-                    <tr><td colspan="5" class="text-center text-muted py-3">No inventory items recorded.</td></tr>
-                }
-                @foreach (var item in inventory)
-                {
+    <!-- Inventory Status Section -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white mb-5">
+        <div class="card-header py-3 bg-white border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-boxes-stacked text-primary me-2"></i>Inventory Valuation & Stock Status</h5>
+            <a asp-action="Inventory" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">View All Items</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: linear-gradient(135deg, #0F2D5C 0%, #163d7a 100%); color: #ffffff;">
                     <tr>
-                        <td>@item.ItemName</td>
-                        <td>@item.Category</td>
-                        <td class="text-end">@item.StockQuantity</td>
-                        <td class="text-end">@item.UnitPrice.ToString("C")</td>
-                        <td>
-                            @if (item.StockQuantity <= item.LowStockThreshold)
-                            {
-                                <span class="badge bg-danger">Low Stock</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-success">In Stock</span>
-                            }
-                        </td>
+                        <th class="py-3 ps-4" style="font-weight: 600;">Item Name</th>
+                        <th class="py-3" style="font-weight: 600;">Category</th>
+                        <th class="py-3 text-center" style="font-weight: 600;">Stock Quantity</th>
+                        <th class="py-3 text-end" style="font-weight: 600;">Unit Price</th>
+                        <th class="py-3 pe-4" style="font-weight: 600;">Status</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @if (!inventory.Any())
+                    {
+                        <tr><td colspan="5" class="text-center text-muted py-4">No inventory items recorded.</td></tr>
+                    }
+                    @foreach (var item in inventory.Take(10))
+                    {
+                        var isLow = item.StockQuantity <= item.LowStockThreshold;
+                        <tr>
+                            <td class="ps-4 fw-bold text-dark">@item.ItemName</td>
+                            <td><span class="badge bg-light text-dark border">@item.Category</span></td>
+                            <td class="text-center fw-bold @(isLow ? "text-danger" : "text-dark")">@item.StockQuantity</td>
+                            <td class="text-end fw-semibold text-primary">@item.UnitPrice.ToString("C")</td>
+                            <td class="pe-4">
+                                @if (isLow)
+                                {
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-1 rounded-pill">Low Stock</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-1 rounded-pill">In Stock</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- Appointments Summary -->
-    <h3 class="mt-5">Appointments Summary</h3>
-    <div class="table-responsive">
-        <table class="table table-bordered align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Date</th>
-                    <th>Patient</th>
-                    <th>Doctor</th>
-                    <th>Time Slot</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!appointments.Any())
-                {
-                    <tr><td colspan="5" class="text-center text-muted py-3">No appointments recorded.</td></tr>
-                }
-                @foreach (var appointment in appointments.OrderByDescending(a => a.AppointmentDate))
-                {
+    <!-- Appointments Summary Section -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+        <div class="card-header py-3 bg-white border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-calendar-check text-success me-2"></i>Recent Patient Appointment Activity</h5>
+            <a asp-action="Appointments" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">View Full Schedule</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: linear-gradient(135deg, #0F2D5C 0%, #163d7a 100%); color: #ffffff;">
                     <tr>
-                        <td>@appointment.AppointmentDate.ToString("dd/MM/yyyy")</td>
-                        <td>@(appointment.Patient?.FullName ?? "-")</td>
-                        <td>@(appointment.Doctor?.FullName ?? "Not assigned")</td>
-                        <td>@appointment.TimeSlot</td>
-                        <td>@appointment.Status</td>
+                        <th class="py-3 ps-4" style="font-weight: 600;">Date</th>
+                        <th class="py-3" style="font-weight: 600;">Patient</th>
+                        <th class="py-3" style="font-weight: 600;">Assigned Doctor</th>
+                        <th class="py-3" style="font-weight: 600;">Time Slot</th>
+                        <th class="py-3 pe-4" style="font-weight: 600;">Status</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @if (!appointments.Any())
+                    {
+                        <tr><td colspan="5" class="text-center text-muted py-4">No appointments recorded.</td></tr>
+                    }
+                    @foreach (var appointment in appointments.OrderByDescending(a => a.AppointmentDate).Take(10))
+                    {
+                        var statusClass = appointment.Status switch
+                        {
+                            optical_care_management_system.Models.AppointmentStatus.Approved => "bg-success text-white",
+                            optical_care_management_system.Models.AppointmentStatus.Canceled => "bg-danger text-white",
+                            _ => "bg-warning text-dark"
+                        };
+
+                        <tr>
+                            <td class="ps-4 fw-semibold text-dark">@appointment.AppointmentDate.ToString("dd MMM yyyy")</td>
+                            <td>@(appointment.Patient?.FullName ?? "-")</td>
+                            <td>@(appointment.Doctor?.FullName ?? "Not assigned")</td>
+                            <td><span class="badge bg-light text-dark border">@appointment.TimeSlot</span></td>
+                            <td class="pe-4">
+                                <span class="badge @statusClass px-3 py-1 rounded-pill">@appointment.Status</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

@@ -1,14 +1,15 @@
-@model optical_care_management_system.Models.Doctor
+@model optical_care_management_system.Models.DoctorFormViewModel
 
 @{
-    ViewData["Title"] = Model.Id == 0 ? "Add New Doctor" : "Edit Doctor";
+    var isEdit = Model.Id.HasValue && Model.Id.Value > 0;
+    ViewData["Title"] = isEdit ? "Edit Doctor" : "Add New Doctor";
 }
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2>@ViewData["Title"]</h2>
-            <p class="text-muted mb-0">Doctor profile and licensing details.</p>
+            <p class="text-muted mb-0">Doctor profile, licensing and system login access.</p>
         </div>
         <a asp-action="Doctors" class="btn btn-outline-secondary">
             <i class="fa fa-arrow-left"></i> Back to Doctors
@@ -17,42 +18,60 @@
 
     <div class="card shadow">
         <div class="card-body">
-            <form asp-action="DoctorForm" asp-route-id="@(Model.Id == 0 ? null : (int?)Model.Id)" method="post">
+            <form asp-action="DoctorForm" asp-route-id="@Model.Id" method="post">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Id" />
-                <input type="hidden" asp-for="CreatedAt" />
 
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label asp-for="FullName" class="form-label">Full Name</label>
+                        <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
                         <input asp-for="FullName" class="form-control" placeholder="Dr. Jane Doe" />
                         <span asp-validation-for="FullName" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label asp-for="Specialty" class="form-label">Specialty</label>
-                        <input asp-for="Specialty" class="form-control" placeholder="Optometrist" />
+                        <label asp-for="Specialty" class="form-label fw-semibold">Specialty <span class="text-danger">*</span></label>
+                        <input asp-for="Specialty" class="form-control" placeholder="Optometrist / Eye Specialist" />
                         <span asp-validation-for="Specialty" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label asp-for="Email" class="form-label">Email</label>
+                        <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
                         <input asp-for="Email" class="form-control" placeholder="doctor@clinic.com" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label asp-for="Phone" class="form-label">Phone</label>
+                        <label asp-for="Phone" class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
                         <input asp-for="Phone" class="form-control" placeholder="+252 61 000 0000" />
                         <span asp-validation-for="Phone" class="text-danger"></span>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="LicenseNumber" class="form-label">License Number</label>
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="LicenseNumber" class="form-label fw-semibold">License Number <span class="text-danger">*</span></label>
                         <input asp-for="LicenseNumber" class="form-control" placeholder="LIC-00000" />
                         <span asp-validation-for="LicenseNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Doctor System Login Account -->
+                <div class="card bg-light border-0 p-3 mb-4 rounded-3">
+                    <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-key me-2 text-primary"></i>Doctor System Login Credentials</h6>
+                    <p class="text-muted small mb-3">Assign or update the login username and password so the doctor can log into the system.</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Username" class="form-label fw-semibold">Login Username</label>
+                            <input asp-for="Username" class="form-control" placeholder="e.g. dr.ali" autocomplete="off" />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Password" class="form-label fw-semibold">@(isEdit ? "New Password (leave blank to keep current)" : "Password")</label>
+                            <input asp-for="Password" class="form-control" placeholder="@(isEdit ? "Leave blank to keep unchanged" : "Create password (default: Doctor@123)")" autocomplete="new-password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
                     </div>
                 </div>
 

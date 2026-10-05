@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = $"Book {Model.Name}";
-    var image = string.IsNullOrWhiteSpace(Model.ImageUrl) ? "default-frame.svg" : Model.ImageUrl;
+    var image = string.IsNullOrWhiteSpace(Model.ImageUrl) ? "default-frame.jpg" : Model.ImageUrl;
 }
 
 @section Styles {
@@ -24,7 +24,7 @@
         <div class="col-lg-5">
             <div class="frame-detail-image">
                 <img src="~/images/frames/@image" alt="@Model.Name"
-                     onerror="this.onerror=null;this.src='/images/frames/default-frame.svg';" />
+                     onerror="this.onerror=null;this.src='/images/frames/default-frame.jpg';" />
             </div>
         </div>
 

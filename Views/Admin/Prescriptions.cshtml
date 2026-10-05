@@ -1,92 +1,234 @@
 @model IEnumerable<optical_care_management_system.Models.Prescription>
 
 @{
-    ViewData["Title"] = "Prescriptions";
+    ViewData["Title"] = "Optical Prescriptions (View & Print) - Admin Panel";
     var prescriptions = Model?.ToList() ?? new List<optical_care_management_system.Models.Prescription>();
+    var totalRx = prescriptions.Count;
+    var activeRx = prescriptions.Count(p => p.IsActive);
+    var archivedRx = prescriptions.Count(p => !p.IsActive);
 }
 
-<div class="container mt-4">
-
+<div class="container mt-4 mb-5">
+    <!-- Flash Messages -->
     @if (TempData["Success"] is not null)
     {
-        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
-            @TempData["Success"]
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] is not null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show shadow-sm border-0 rounded-3" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i> @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-            <h2>Prescriptions</h2>
-            <p class="text-muted mb-0">Total Prescriptions: @prescriptions.Count</p>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="fa-solid fa-file-prescription text-primary me-2"></i>Doctor Prescriptions & Medications
+            </h2>
+            <p class="text-muted mb-0">View all clinical prescriptions authored by attending doctors, with one-click official printing.</p>
         </div>
-        <a asp-action="PrescriptionForm" class="btn btn-primary">
-            <i class="fa fa-plus"></i> Add New Prescription
-        </a>
+        <div>
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 fs-6 rounded-pill">
+                <i class="fa-solid fa-shield-halved me-1"></i> Admin View & Print Only
+            </span>
+        </div>
     </div>
 
-    <div class="card shadow">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Patient</th>
-                            <th>Doctor</th>
-                            <th>Date</th>
-                            <th>Lens Type</th>
-                            <th>Left Eye</th>
-                            <th>Right Eye</th>
-                            <th>Status</th>
-                            <th>Notes</th>
-                            <th width="170" class="text-end no-print">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (!prescriptions.Any())
-                        {
-                            <tr>
-                                <td colspan="9" class="text-center text-muted py-4">
-                                    No prescriptions yet.
-                                </td>
-                            </tr>
-                        }
-                        @foreach (var item in prescriptions)
-                        {
-                            <tr>
-                                <td>@(item.Patient?.FullName ?? "-")</td>
-                                <td>@(item.Doctor?.FullName ?? "-")</td>
-                                <td>@item.PrescriptionDate.ToString("dd/MM/yyyy")</td>
-                                <td>@item.LensType</td>
-                                <td>@item.LeftEye</td>
-                                <td>@item.RightEye</td>
-                                <td>
-                                    @if (item.IsActive)
-                                    {
-                                        <span class="badge bg-success">Active</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary">Inactive</span>
-                                    }
-                                </td>
-                                <td>@item.Notes</td>
-                                <td class="text-end no-print">
-                                    <a asp-action="PrescriptionForm" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
-                                        <i class="fa fa-edit"></i> Edit
-                                    </a>
-                                    <form asp-action="DeletePrescription" asp-route-id="@item.Id" method="post" style="display:inline">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this prescription?')">
-                                            <i class="fa fa-trash"></i> Delete
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+    <!-- Governance Notice Banner -->
+    <div class="alert alert-info border-0 shadow-sm rounded-4 p-3 mb-4 d-flex align-items-center gap-3">
+        <div class="p-2 bg-info bg-opacity-25 text-info rounded-circle fs-4">
+            <i class="fa-solid fa-user-doctor"></i>
+        </div>
+        <div>
+            <h6 class="fw-bold text-dark mb-1">Medical Governance & Prescription Policy</h6>
+            <div class="small text-muted">
+                Prescriptions and medications are authored exclusively by licensed optometrist doctors after clinical examination.
+                As Administrator, you can review all issued prescriptions and print official clinic prescription slips.
             </div>
         </div>
     </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Total Prescriptions</div>
+                        <div class="fs-2 fw-bold text-dark">@totalRx</div>
+                    </div>
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                        <i class="fa-solid fa-file-prescription fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Active Valid Prescriptions</div>
+                        <div class="fs-2 fw-bold text-dark">@activeRx</div>
+                    </div>
+                    <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle">
+                        <i class="fa-solid fa-circle-check fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-secondary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Archived / Inactive</div>
+                        <div class="fs-2 fw-bold text-dark">@archivedRx</div>
+                    </div>
+                    <div class="p-3 bg-secondary bg-opacity-10 text-secondary rounded-circle">
+                        <i class="fa-solid fa-box-archive fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Prescriptions Card -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+        <!-- Search Toolbar -->
+        <div class="card-header bg-white border-bottom p-3">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa fa-search"></i></span>
+                        <input type="text" class="form-control bg-light border-start-0 ps-0" placeholder="Search by patient, doctor, lens type, or medication..." id="rxSearch" />
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end text-muted small">
+                    <span id="rxCountBadge" class="badge bg-light text-dark border px-3 py-2 fs-7 rounded-pill">
+                        <i class="fa-solid fa-file-prescription me-1 text-primary"></i> Showing @totalRx Prescriptions
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: linear-gradient(135deg, #0F2D5C 0%, #163d7a 100%); color: #ffffff;">
+                    <tr>
+                        <th class="py-3 ps-4" style="font-weight: 600;">Rx #</th>
+                        <th class="py-3" style="font-weight: 600;">Patient</th>
+                        <th class="py-3" style="font-weight: 600;">Prescribing Doctor</th>
+                        <th class="py-3" style="font-weight: 600;">Date</th>
+                        <th class="py-3" style="font-weight: 600;">Lens Type</th>
+                        <th class="py-3" style="font-weight: 600;">Left Eye (OS)</th>
+                        <th class="py-3" style="font-weight: 600;">Right Eye (OD)</th>
+                        <th class="py-3" style="font-weight: 600;">Status</th>
+                        <th class="py-3" style="font-weight: 600;">Medication / Instructions</th>
+                        <th class="py-3 pe-4 text-end no-print" style="font-weight: 600; min-width: 140px;">Print Official Slip</th>
+                    </tr>
+                </thead>
+                <tbody id="rxTable">
+                    @if (!prescriptions.Any())
+                    {
+                        <tr>
+                            <td colspan="10" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-file-circle-xmark fa-3x mb-3 text-secondary d-block"></i>
+                                <h5 class="fw-bold text-dark">No Prescriptions Issued Yet</h5>
+                                <p class="small text-muted mb-0">When doctors write and save prescriptions in their Doctor Portal, they will automatically appear here for viewing and printing.</p>
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var item in prescriptions)
+                    {
+                        <tr class="rx-row">
+                            <td class="ps-4">
+                                <span class="badge bg-light text-dark border fw-bold">#RX-@item.Id.ToString("D4")</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">@(item.Patient?.FullName ?? "Patient")</div>
+                                <small class="text-muted"><i class="fa-solid fa-phone text-success me-1"></i>@(item.Patient?.Phone ?? "-")</small>
+                            </td>
+                            <td>
+                                @if (item.Doctor != null)
+                                {
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fa-solid fa-user-doctor text-info me-1"></i>Dr. @item.Doctor.FullName
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">-</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="small text-dark">@item.PrescriptionDate.ToString("dd MMM yyyy")</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-2 py-1">
+                                    @item.LensType
+                                </span>
+                            </td>
+                            <td><code>@item.LeftEye</code></td>
+                            <td><code>@item.RightEye</code></td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="badge bg-success px-3 py-1 rounded-pill">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary px-3 py-1 rounded-pill">Archived</span>
+                                }
+                            </td>
+                            <td>
+                                <small class="text-muted" style="max-width: 220px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="@item.Notes">
+                                    @(string.IsNullOrWhiteSpace(item.Notes) ? "Standard corrective wear" : item.Notes)
+                                </small>
+                            </td>
+                            <td class="pe-4 text-end no-print" style="white-space: nowrap;">
+                                <a asp-action="PrintPrescription" asp-route-id="@item.Id" class="btn btn-sm btn-primary rounded-pill px-3 fw-semibold shadow-sm action-btn" title="Print Official Prescription Slip" target="_blank">
+                                    <i class="fa-solid fa-print me-1"></i> Print Slip
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white py-3 border-top d-flex justify-content-between align-items-center text-muted small">
+            <div>Showing all doctor-issued optical prescriptions</div>
+            <div>Optical Care Management System &bull; Read & Print Only</div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById("rxSearch")?.addEventListener("keyup", function () {
+            const val = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll("#rxTable tr.rx-row");
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(val)) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            const badge = document.getElementById("rxCountBadge");
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid fa-file-prescription me-1 text-primary"></i> Showing ${visibleCount} Prescriptions`;
+            }
+        });
+    </script>
+}

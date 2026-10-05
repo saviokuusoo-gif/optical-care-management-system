@@ -1,0 +1,133 @@
+@model IEnumerable<optical_care_management_system.Models.Appointment>
+
+@{
+    ViewData["Title"] = "My Appointments - Doctor Portal";
+    var selectedStatus = ViewBag.SelectedStatus as string;
+    var appointments = Model.ToList();
+}
+
+<div class="container mt-4">
+    @if (TempData["Success"] is not null)
+    {
+        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
+            <i class="fa fa-check-circle me-1"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold"><i class="fa-regular fa-calendar-check text-primary me-2"></i>My Appointments</h2>
+            <p class="text-muted mb-0">Total Assigned Appointments: @appointments.Count</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="ExaminationRecordForm" class="btn btn-primary">
+                <i class="fa fa-stethoscope me-1"></i> Start New Examination
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body py-2">
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <span class="fw-semibold me-2 text-muted small text-uppercase"><i class="fa fa-filter me-1"></i>Filter Status:</span>
+                <a asp-action="Appointments" class="btn btn-sm @(string.IsNullOrEmpty(selectedStatus) ? "btn-dark" : "btn-outline-secondary")">All</a>
+                <a asp-action="Appointments" asp-route-status="Pending" class="btn btn-sm @(selectedStatus == "Pending" ? "btn-warning text-dark" : "btn-outline-warning text-dark")">Pending</a>
+                <a asp-action="Appointments" asp-route-status="Approved" class="btn btn-sm @(selectedStatus == "Approved" ? "btn-success" : "btn-outline-success")">Approved</a>
+                <a asp-action="Appointments" asp-route-status="Canceled" class="btn btn-sm @(selectedStatus == "Canceled" ? "btn-danger" : "btn-outline-danger")">Canceled</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments Table -->
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>Contact</th>
+                            <th>Date</th>
+                            <th>Time Slot</th>
+                            <th>Notes</th>
+                            <th>Status</th>
+                            <th class="text-end" width="220">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!appointments.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    <i class="fa-regular fa-calendar-xmark fa-2x mb-2 text-secondary d-block"></i>
+                                    No appointments found matching this criteria.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var appt in appointments)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">@(appt.Patient?.FullName ?? "Unknown")</div>
+                                    <small class="text-muted">ID: #@(appt.PatientId)</small>
+                                </td>
+                                <td>
+                                    <div><i class="fa fa-phone text-muted small me-1"></i>@(appt.Patient?.Phone ?? "-")</div>
+                                    <small class="text-muted">@(appt.Patient?.Email ?? "-")</small>
+                                </td>
+                                <td><span class="fw-semibold">@appt.AppointmentDate.ToString("dd MMM yyyy")</span></td>
+                                <td><span class="badge bg-secondary">@appt.TimeSlot</span></td>
+                                <td>
+                                    <span class="text-muted small">@(string.IsNullOrWhiteSpace(appt.Notes) ? "-" : appt.Notes)</span>
+                                </td>
+                                <td>
+                                    @if (appt.Status == AppointmentStatus.Approved)
+                                    {
+                                        <span class="badge bg-success"><i class="fa fa-check me-1"></i>Approved</span>
+                                    }
+                                    else if (appt.Status == AppointmentStatus.Pending)
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="fa fa-clock me-1"></i>Pending</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger"><i class="fa fa-times me-1"></i>Canceled</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <a asp-action="ExaminationRecordForm" asp-route-patientId="@appt.PatientId" asp-route-appointmentId="@appt.Id" class="btn btn-sm btn-primary" title="Examine Patient">
+                                            <i class="fa fa-stethoscope"></i> Examine
+                                        </a>
+
+                                        @if (appt.Status == AppointmentStatus.Pending)
+                                        {
+                                            <form asp-action="UpdateAppointmentStatus" asp-route-id="@appt.Id" asp-route-status="Approved" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-success" title="Approve">
+                                                    <i class="fa fa-check"></i>
+                                                </button>
+                                            </form>
+                                        }
+
+                                        @if (appt.Status != AppointmentStatus.Canceled)
+                                        {
+                                            <form asp-action="UpdateAppointmentStatus" asp-route-id="@appt.Id" asp-route-status="Canceled" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancel">
+                                                    <i class="fa fa-ban"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

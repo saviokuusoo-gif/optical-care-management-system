@@ -1,161 +1,313 @@
 @model IEnumerable<optical_care_management_system.Models.Patient>
 
 @{
-    ViewData["Title"] = "Patients Management";
-    var totalPatients = Model.Count();
+    ViewData["Title"] = "Patients Directory - Optical Care";
+    var patients = Model.ToList();
+    var totalPatients = patients.Count;
+    var patientsWithPhone = patients.Count(p => !string.IsNullOrWhiteSpace(p.Phone));
+    var newThisMonth = patients.Count(p => p.CreatedAt.Month == DateTime.UtcNow.Month && p.CreatedAt.Year == DateTime.UtcNow.Year);
 }
 
 <div class="container mt-4">
 
+    <!-- Flash Messages -->
     @if (TempData["Success"] is not null)
     {
-        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
-            @TempData["Success"]
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] is not null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 rounded-3" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i> @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-            <h2>Patients Management</h2>
-            <p class="text-muted mb-0">
-                Total Patients: @totalPatients
-            </p>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="fa-solid fa-hospital-user text-primary me-2"></i>Patients Directory
+            </h2>
+            <p class="text-muted mb-0">Manage registered optical clinic patients, contact details, and clinical history.</p>
         </div>
 
-        <a asp-action="PatientForm" class="btn btn-primary">
-            <i class="fa fa-user-plus"></i>
-            Add New Patient
-        </a>
-
+        <div class="d-flex gap-2">
+            <a asp-action="PatientForm" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+                <i class="fa fa-user-plus me-1"></i> Add New Patient
+            </a>
+        </div>
     </div>
 
-
-    <div class="card shadow">
-
-        <div class="card-body">
-
-            <div class="mb-3 no-print">
-
-                <input type="text"
-                       class="form-control"
-                       placeholder="Search patient..."
-                       id="patientSearch">
-
+    <!-- Quick Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Total Registered Patients</div>
+                        <div class="fs-2 fw-bold text-dark">@totalPatients</div>
+                    </div>
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                        <i class="fa-solid fa-users fa-xl"></i>
+                    </div>
+                </div>
             </div>
-
-
-            <table class="table table-hover">
-
-                <thead class="table-dark">
-
-                    <tr>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th width="200" class="text-end no-print">Actions</th>
-                    </tr>
-
-                </thead>
-
-
-                <tbody id="patientTable">
-
-                @foreach (var patient in Model)
-                {
-                    <tr>
-
-                        <td>
-                            @patient.FullName
-                        </td>
-
-                        <td>
-                            @patient.Email
-                        </td>
-
-                        <td>
-                            @patient.Phone
-                        </td>
-
-                        <td class="text-end no-print">
-
-                            <a asp-action="PatientDetails"
-                               asp-route-id="@patient.Id"
-                               class="btn btn-sm btn-info">
-
-                                <i class="fa fa-eye"></i>
-                                View
-
-                            </a>
-
-
-                            <a asp-action="PatientForm"
-                               asp-route-id="@patient.Id"
-                               class="btn btn-sm btn-warning">
-
-                                <i class="fa fa-edit"></i>
-                                Edit
-
-                            </a>
-
-
-                            <form asp-action="DeletePatient"
-                                  asp-route-id="@patient.Id"
-                                  method="post"
-                                  style="display:inline">
-
-                                @Html.AntiForgeryToken()
-
-                                <button type="submit"
-                                        class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Delete this patient?')">
-
-                                    <i class="fa fa-trash"></i>
-                                    Delete
-
-                                </button>
-
-                            </form>
-
-                        </td>
-                    </tr>
-                }
-
-                </tbody>
-
-            </table>
-
         </div>
 
+        <div class="col-md-4 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Verified Phone Contacts</div>
+                        <div class="fs-2 fw-bold text-dark">@patientsWithPhone</div>
+                    </div>
+                    <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle">
+                        <i class="fa-solid fa-phone fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-info">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">New Patients This Month</div>
+                        <div class="fs-2 fw-bold text-dark">@newThisMonth</div>
+                    </div>
+                    <div class="p-3 bg-info bg-opacity-10 text-info rounded-circle">
+                        <i class="fa-solid fa-user-clock fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Patients Card -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+        <!-- Search Toolbar -->
+        <div class="card-header bg-white border-bottom p-3">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa fa-search"></i></span>
+                        <input type="text" class="form-control bg-light border-start-0 ps-0" placeholder="Search by patient name, email, phone number, or ID..." id="patientSearch" />
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end text-muted small">
+                    <span id="patientCountBadge" class="badge bg-light text-dark border px-3 py-2 fs-7 rounded-pill">
+                        <i class="fa-solid fa-user-group me-1 text-primary"></i> Showing @totalPatients Patients
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: linear-gradient(135deg, #0F2D5C 0%, #163d7a 100%); color: #ffffff;">
+                    <tr>
+                        <th class="py-3 ps-4" style="font-weight: 600;">Patient</th>
+                        <th class="py-3" style="font-weight: 600;">Email Address</th>
+                        <th class="py-3" style="font-weight: 600;">Phone Number</th>
+                        <th class="py-3" style="font-weight: 600;">Gender / DOB</th>
+                        <th class="py-3" style="font-weight: 600;">Joined Date</th>
+                        <th class="py-3 pe-4 text-end no-print" style="font-weight: 600; min-width: 220px;">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="patientTable">
+                    @if (!patients.Any())
+                    {
+                        <tr id="noDataRow">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-user-slash fa-3x mb-3 text-secondary d-block"></i>
+                                <h5 class="fw-bold text-dark">No Patients Registered Yet</h5>
+                                <p class="small text-muted mb-3">Get started by adding your first patient record.</p>
+                                <a asp-action="PatientForm" class="btn btn-sm btn-primary rounded-pill px-3">
+                                    <i class="fa fa-user-plus me-1"></i> Add Patient
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var patient in patients)
+                    {
+                        var initials = string.Join("", (patient.FullName ?? "P").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => s[0])).ToUpper();
+                        
+                        <tr class="patient-row transition-row">
+                            <!-- Patient Avatar & Name -->
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-circle shadow-sm">
+                                        @initials
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark patient-name">@patient.FullName</div>
+                                        <small class="text-muted">ID: <code>#@patient.Id</code></small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Email -->
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(patient.Email))
+                                {
+                                    <div class="d-flex align-items-center gap-1 text-dark">
+                                        <i class="fa-regular fa-envelope text-primary small"></i>
+                                        <a href="mailto:@patient.Email" class="text-decoration-none text-dark hover-primary small">@patient.Email</a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small"><em>Not provided</em></span>
+                                }
+                            </td>
+
+                            <!-- Phone -->
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(patient.Phone))
+                                {
+                                    <span class="badge bg-light text-dark border px-2 py-1 fw-normal">
+                                        <i class="fa-solid fa-phone text-success me-1 small"></i>@patient.Phone
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small"><em>Not provided</em></span>
+                                }
+                            </td>
+
+                            <!-- Gender & DOB -->
+                            <td>
+                                <div class="small">
+                                    @if (!string.IsNullOrWhiteSpace(patient.Gender))
+                                    {
+                                        <span class="badge @(patient.Gender.ToLower().StartsWith("m") ? "bg-primary" : "bg-pink") bg-opacity-10 @(patient.Gender.ToLower().StartsWith("m") ? "text-primary" : "text-danger") border px-2 py-1">
+                                            @patient.Gender
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                    @if (patient.DateOfBirth.HasValue)
+                                    {
+                                        <div class="text-muted mt-1" style="font-size: 0.75rem;">
+                                            <i class="fa-regular fa-calendar me-1"></i>@patient.DateOfBirth.Value.ToString("dd MMM yyyy")
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+
+                            <!-- Created Date -->
+                            <td>
+                                <span class="small text-muted">
+                                    @patient.CreatedAt.ToString("dd MMM yyyy")
+                                </span>
+                            </td>
+
+                            <!-- Actions Toolbar -->
+                            <td class="pe-4 text-end no-print" style="white-space: nowrap;">
+                                <div class="d-inline-flex gap-1">
+                                    <a asp-action="PatientDetails" asp-route-id="@patient.Id" class="btn btn-sm btn-outline-info rounded-pill px-3 fw-semibold action-btn" title="View Patient Details & Medical History">
+                                        <i class="fa fa-eye me-1"></i> View
+                                    </a>
+
+                                    <a asp-action="PatientForm" asp-route-id="@patient.Id" class="btn btn-sm btn-outline-warning rounded-pill px-3 fw-semibold action-btn" title="Edit Patient Info">
+                                        <i class="fa fa-edit me-1"></i> Edit
+                                    </a>
+
+                                    <form asp-action="DeletePatient" asp-route-id="@patient.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete patient @patient.FullName?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 action-btn" title="Delete Patient">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Table Footer -->
+        <div class="card-footer bg-white py-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2 text-muted small">
+            <div>
+                Showing patient directory records
+            </div>
+            <div>
+                Optical Care Management System
+            </div>
+        </div>
     </div>
 
 </div>
 
+<style>
+    .avatar-circle {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1E88E5 0%, #0F2D5C 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+    }
+
+    .hover-primary:hover {
+        color: #1E88E5 !important;
+        text-decoration: underline !important;
+    }
+
+    .action-btn {
+        transition: all 0.2s ease;
+        font-size: 0.8rem;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .transition-row {
+        transition: background-color 0.15s ease;
+    }
+
+    .transition-row:hover {
+        background-color: #f8fafc !important;
+    }
+</style>
 
 @section Scripts {
+    <script>
+        document.getElementById("patientSearch")?.addEventListener("keyup", function () {
+            const val = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll("#patientTable tr.patient-row");
+            let visibleCount = 0;
 
-<script>
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(val)) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
 
-document.getElementById("patientSearch")
-.addEventListener("keyup", function(){
-
-    let value = this.value.toLowerCase();
-
-    let rows = document.querySelectorAll("#patientTable tr");
-
-
-    rows.forEach(row => {
-
-        row.style.display =
-        row.innerText.toLowerCase().includes(value)
-        ? ""
-        : "none";
-
-    });
-
-});
-
-</script>
-
+            const badge = document.getElementById("patientCountBadge");
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid fa-user-group me-1 text-primary"></i> Showing ${visibleCount} Patients`;
+            }
+        });
+    </script>
 }

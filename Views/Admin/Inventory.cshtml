@@ -1,110 +1,230 @@
 @model IEnumerable<optical_care_management_system.Models.InventoryItem>
 
 @{
-    ViewData["Title"] = "Inventory Management";
+    ViewData["Title"] = "Inventory & Optical Stock - Optical Care";
     var items = Model.ToList();
+    var totalItems = items.Count;
     var lowStock = items.Count(i => i.StockQuantity <= i.LowStockThreshold);
-    var totalValue = items.Sum(i => i.StockQuantity * i.UnitPrice);
+    var totalUnits = items.Sum(i => i.StockQuantity);
+    var totalVal = items.Sum(i => i.StockQuantity * i.UnitPrice);
 }
 
 <div class="container mt-4">
-
+    <!-- Flash Messages -->
     @if (TempData["Success"] is not null)
     {
-        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
-            @TempData["Success"]
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] is not null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 rounded-3" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i> @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-            <h2>Inventory Management</h2>
-            <p class="text-muted mb-0">
-                @items.Count item(s) &middot; @lowStock low on stock &middot; Total value @totalValue.ToString("C")
-            </p>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="fa-solid fa-boxes-stacked text-primary me-2"></i>Inventory & Stock Management
+            </h2>
+            <p class="text-muted mb-0">Track optical frames, prescription lenses, solutions, and clinical supplies.</p>
         </div>
-
-        <a asp-action="InventoryForm" class="btn btn-primary">
-            <i class="fa fa-plus"></i> Add New Item
-        </a>
+        <div>
+            <a asp-action="InventoryForm" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+                <i class="fa-solid fa-plus me-1"></i> Add Inventory Item
+            </a>
+        </div>
     </div>
 
-    <div class="card shadow">
-        <div class="card-body">
-
-            <div class="mb-3 no-print">
-                <input type="text" class="form-control" placeholder="Search inventory..." id="inventorySearch" />
+    <!-- Quick Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Total Item Types</div>
+                        <div class="fs-2 fw-bold text-dark">@totalItems</div>
+                    </div>
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                        <i class="fa-solid fa-boxes-stacked fa-xl"></i>
+                    </div>
+                </div>
             </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-info">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Total Units in Stock</div>
+                        <div class="fs-2 fw-bold text-dark">@totalUnits</div>
+                    </div>
+                    <div class="p-3 bg-info bg-opacity-10 text-info rounded-circle">
+                        <i class="fa-solid fa-layer-group fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Total Inventory Value</div>
+                        <div class="fs-2 fw-bold text-dark">$@totalVal.ToString("N2")</div>
+                    </div>
+                    <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle">
+                        <i class="fa-solid fa-dollar-sign fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 rounded-3 bg-white p-3 border-start border-4 border-danger">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Low Stock Alerts</div>
+                        <div class="fs-2 fw-bold @(lowStock > 0 ? "text-danger" : "text-dark")">@lowStock</div>
+                    </div>
+                    <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-circle">
+                        <i class="fa-solid fa-triangle-exclamation fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-dark">
+    <!-- Main Table Card -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+        <!-- Search Toolbar -->
+        <div class="card-header bg-white border-bottom p-3">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa fa-search"></i></span>
+                        <input type="text" class="form-control bg-light border-start-0 ps-0" placeholder="Search inventory by item name, category, or status..." id="invSearch" />
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end text-muted small">
+                    <span id="invCountBadge" class="badge bg-light text-dark border px-3 py-2 fs-7 rounded-pill">
+                        <i class="fa-solid fa-boxes-stacked me-1 text-primary"></i> Showing @totalItems Items
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: linear-gradient(135deg, #0F2D5C 0%, #163d7a 100%); color: #ffffff;">
+                    <tr>
+                        <th class="py-3 ps-4" style="font-weight: 600;">Item Name</th>
+                        <th class="py-3" style="font-weight: 600;">Category</th>
+                        <th class="py-3 text-center" style="font-weight: 600;">Stock Level</th>
+                        <th class="py-3 text-end" style="font-weight: 600;">Unit Price</th>
+                        <th class="py-3" style="font-weight: 600;">Status</th>
+                        <th class="py-3 pe-4 text-end no-print" style="font-weight: 600; min-width: 170px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="invTable">
+                    @if (!items.Any())
+                    {
                         <tr>
-                            <th>Item Name</th>
-                            <th>Category</th>
-                            <th class="text-end">Stock</th>
-                            <th class="text-end">Unit Price</th>
-                            <th>Status</th>
-                            <th width="180" class="text-end no-print">Actions</th>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-box-open fa-3x mb-3 text-secondary d-block"></i>
+                                <h5 class="fw-bold text-dark">No Inventory Items Found</h5>
+                                <p class="small text-muted mb-3">Add items to manage stock and reorder thresholds.</p>
+                                <a asp-action="InventoryForm" class="btn btn-sm btn-primary rounded-pill px-3">
+                                    <i class="fa-solid fa-plus me-1"></i> Add Item
+                                </a>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody id="inventoryTable">
-                        @if (!items.Any())
-                        {
-                            <tr>
-                                <td colspan="6" class="text-center text-muted py-4">
-                                    No inventory items yet. Use <strong>Add New Item</strong> to create one.
-                                </td>
-                            </tr>
-                        }
-                        @foreach (var item in items)
-                        {
-                            <tr>
-                                <td>@item.ItemName</td>
-                                <td>@item.Category</td>
-                                <td class="text-end">@item.StockQuantity</td>
-                                <td class="text-end">@item.UnitPrice.ToString("C")</td>
-                                <td>
-                                    @if (item.StockQuantity <= item.LowStockThreshold)
-                                    {
-                                        <span class="badge bg-danger">Low Stock</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-success">In Stock</span>
-                                    }
-                                </td>
-                                <td class="text-end no-print">
-                                    <a asp-action="InventoryForm" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
-                                        <i class="fa fa-edit"></i> Edit
+                    }
+                    @foreach (var item in items)
+                    {
+                        var isLow = item.StockQuantity <= item.LowStockThreshold;
+
+                        <tr class="inv-row">
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">@item.ItemName</div>
+                                <small class="text-muted">Threshold: @item.LowStockThreshold units</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    @item.Category
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-bold fs-6 @(isLow ? "text-danger" : "text-dark")">
+                                    @item.StockQuantity
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <span class="fw-semibold text-primary">$@item.UnitPrice.ToString("N2")</span>
+                            </td>
+                            <td>
+                                @if (isLow)
+                                {
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-2 rounded-pill">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Low Stock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill">
+                                        <i class="fa-solid fa-check me-1"></i> In Stock
+                                    </span>
+                                }
+                            </td>
+                            <td class="pe-4 text-end no-print" style="white-space: nowrap;">
+                                <div class="d-inline-flex gap-1">
+                                    <a asp-action="InventoryForm" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning rounded-pill px-3 fw-semibold action-btn" title="Edit Inventory Item">
+                                        <i class="fa-solid fa-edit me-1"></i> Edit
                                     </a>
-                                    <form asp-action="DeleteInventoryItem" asp-route-id="@item.Id" method="post" style="display:inline">
+                                    <form asp-action="DeleteInventoryItem" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Delete item @item.ItemName?');">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Delete this inventory item?')">
-                                            <i class="fa fa-trash"></i> Delete
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 action-btn" title="Delete">
+                                            <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
+        <div class="card-footer bg-white py-3 border-top d-flex justify-content-between align-items-center text-muted small">
+            <div>Showing inventory warehouse items</div>
+            <div>Optical Care Management System</div>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        document.getElementById("inventorySearch")
-            .addEventListener("keyup", function () {
-                const value = this.value.toLowerCase();
-                document.querySelectorAll("#inventoryTable tr").forEach(row => {
-                    row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
-                });
+        document.getElementById("invSearch")?.addEventListener("keyup", function () {
+            const val = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll("#invTable tr.inv-row");
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(val)) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
             });
+
+            const badge = document.getElementById("invCountBadge");
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid fa-boxes-stacked me-1 text-primary"></i> Showing ${visibleCount} Items`;
+            }
+        });
     </script>
 }

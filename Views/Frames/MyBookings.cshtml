@@ -49,7 +49,7 @@
             @foreach (var booking in bookings)
             {
                 var frame = booking.Frame;
-                var image = string.IsNullOrWhiteSpace(frame?.ImageUrl) ? "default-frame.svg" : frame!.ImageUrl;
+                var image = string.IsNullOrWhiteSpace(frame?.ImageUrl) ? "default-frame.jpg" : frame!.ImageUrl;
 
                 var (badgeClass, badgeIcon) = booking.Status switch
                 {
@@ -67,7 +67,7 @@
                                 <div class="col-auto">
                                     <div class="frame-image rounded" style="width:150px;aspect-ratio:16/10;padding:.5rem;">
                                         <img src="~/images/frames/@image" alt="@(frame?.Name ?? "Frame")"
-                                             onerror="this.onerror=null;this.src='/images/frames/default-frame.svg';" />
+                                             onerror="this.onerror=null;this.src='/images/frames/default-frame.jpg';" />
                                     </div>
                                 </div>
 

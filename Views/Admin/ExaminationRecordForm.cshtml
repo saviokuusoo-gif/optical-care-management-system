@@ -1,84 +1,119 @@
 @model optical_care_management_system.Models.ExaminationRecord
 
 @{
-    ViewData["Title"] = Model.Id == 0 ? "Add Examination Record" : "Edit Examination Record";
+    ViewData["Title"] = Model.Id == 0 ? "Perform Eye Examination & Measurement (Cabbirka)" : "Edit Eye Examination Record";
 }
 
-<div class="container mt-4">
-
-    <h2>@ViewData["Title"]</h2>
-
-    <form asp-action="ExaminationRecordForm" method="post">
-
-        @Html.AntiForgeryToken()
-
-        <input asp-for="Id" type="hidden" />
-
-        <div class="mb-3">
-            <label>Patient</label>
-            <select asp-for="PatientId" asp-items="ViewBag.Patients" class="form-select">
-                <option value="">-- Select Patient --</option>
-            </select>
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="fa-solid fa-microscope text-primary me-2"></i>@ViewData["Title"]
+            </h2>
+            <p class="text-muted mb-0">Record clinical ocular refraction measurements, visual acuity, and assign to doctor for medication & prescription.</p>
         </div>
-
-        
-<div class="mb-3">
-    <label asp-for="DoctorId" class="form-label">Doctor</label>
-
-    <select asp-for="DoctorId"
-            asp-items="ViewBag.Doctors"
-            class="form-select">
-
-        <option value="">-- Select Doctor --</option>
-
-    </select>
-
-    <span asp-validation-for="DoctorId" class="text-danger"></span>
-</div>
-        <div class="mb-3">
-            <label asp-for="ExamDate"></label>
-            <input asp-for="ExamDate" type="date" class="form-control" />
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="LeftEye"></label>
-            <input asp-for="LeftEye" class="form-control" />
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="RightEye"></label>
-            <input asp-for="RightEye" class="form-control" />
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="VisualAcuity"></label>
-            <input asp-for="VisualAcuity" class="form-control" />
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="EyePressure"></label>
-            <input asp-for="EyePressure" class="form-control" />
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Notes"></label>
-            <textarea asp-for="Notes" class="form-control" rows="4"></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary">
-            Save
-        </button>
-
-        <a asp-action="ExaminationRecords" class="btn btn-secondary">
-            Cancel
+        <a asp-action="ExaminationRecords" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Records
         </a>
+    </div>
 
-    </form>
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+        <div class="card-header py-3" style="background: linear-gradient(135deg, #0F2D5C 0%, #163d7a 100%); color: #ffffff;">
+            <h5 class="mb-0 fw-bold"><i class="fa-solid fa-clipboard-check me-2"></i>Patient & Clinical Refraction Details</h5>
+        </div>
 
+        <div class="card-body p-4">
+            <form asp-action="ExaminationRecordForm" method="post">
+                @Html.AntiForgeryToken()
+                <input asp-for="Id" type="hidden" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <!-- Patient and Doctor Selection -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold text-dark"><i class="fa-solid fa-hospital-user text-primary me-1"></i>Select Patient *</label>
+                        <select asp-for="PatientId" asp-items="ViewBag.Patients" class="form-select rounded-3 py-2">
+                            <option value="">-- Choose Patient to Examine --</option>
+                        </select>
+                        <span asp-validation-for="PatientId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-dark"><i class="fa-solid fa-user-doctor text-info me-1"></i>Assigned Doctor *</label>
+                        <select asp-for="DoctorId" asp-items="ViewBag.Doctors" class="form-select rounded-3 py-2">
+                            <option value="">-- Choose Doctor for Prescription --</option>
+                        </select>
+                        <span asp-validation-for="DoctorId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-dark"><i class="fa-regular fa-calendar me-1 text-secondary"></i>Exam Date *</label>
+                        <input asp-for="ExamDate" type="date" class="form-control rounded-3 py-2" />
+                        <span asp-validation-for="ExamDate" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Eye Measurements (Cabbirka Indhaha) -->
+                <div class="p-3 mb-4 rounded-4 bg-light border">
+                    <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-eye text-primary me-2"></i>Ocular Refraction Powers (Cabbirka Indhaha)</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+                                <label class="form-label fw-bold text-primary fs-6 mb-2">
+                                    <i class="fa-solid fa-eye me-1"></i> Right Eye - OD (Oculus Dexter) *
+                                </label>
+                                <input asp-for="RightEye" class="form-control rounded-3" placeholder="e.g. SPH -1.50, CYL -0.50, AXIS 90" />
+                                <small class="text-muted">Sphere, Cylinder, Axis parameters</small>
+                                <span asp-validation-for="RightEye" class="text-danger small d-block"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+                                <label class="form-label fw-bold text-primary fs-6 mb-2">
+                                    <i class="fa-solid fa-eye me-1"></i> Left Eye - OS (Oculus Sinister) *
+                                </label>
+                                <input asp-for="LeftEye" class="form-control rounded-3" placeholder="e.g. SPH -1.75, CYL -0.25, AXIS 180" />
+                                <small class="text-muted">Sphere, Cylinder, Axis parameters</small>
+                                <span asp-validation-for="LeftEye" class="text-danger small d-block"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark">Visual Acuity *</label>
+                            <input asp-for="VisualAcuity" class="form-control rounded-3" placeholder="e.g. 20/20, 20/40, 6/6" />
+                            <span asp-validation-for="VisualAcuity" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark">Intraocular Eye Pressure (IOP) *</label>
+                            <input asp-for="EyePressure" class="form-control rounded-3" placeholder="e.g. 14 mmHg, Normal" />
+                            <span asp-validation-for="EyePressure" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clinical Measurement Notes -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-dark">Technician / Measurement Notes</label>
+                    <textarea asp-for="Notes" class="form-control rounded-3" rows="3" placeholder="Enter findings, patient complaints, reading distance, or special remarks for the reviewing doctor..."></textarea>
+                    <span asp-validation-for="Notes" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+                        <i class="fa-solid fa-save me-1"></i> Save Examination & Forward to Doctor
+                    </button>
+                    <a asp-action="ExaminationRecords" class="btn btn-outline-secondary rounded-pill px-4 py-2">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
-@section Scripts{
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
