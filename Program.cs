@@ -329,6 +329,30 @@ using (var scope = app.Services.CreateScope())
     defaultAdmin.Role = UserRole.Admin;
     defaultAdmin.PasswordHash = passwordHasher.HashPassword(defaultAdmin, defaultAdminPassword);
     dbContext.SaveChanges();
+
+    // Admin gaar ah "Safia" - password-ka waxaa laga akhriyaa env var
+    // "SafiaAdminPassword". Haddii aan la dejin, user-kan lama abuurayo/
+    // lama cusbooneysiiyo (si aan loo baahnayn password default ah).
+    var safiaAdminPassword = builder.Configuration["SafiaAdminPassword"];
+    if (!string.IsNullOrWhiteSpace(safiaAdminPassword))
+    {
+        var safiaAdmin = dbContext.UserAccounts.FirstOrDefault(u => u.Username == "Safia");
+        if (safiaAdmin == null)
+        {
+            safiaAdmin = new UserAccount
+            {
+                Username = "Safia",
+                Email = "safia@opticalcare.com",
+                FullName = "Safia",
+                Role = UserRole.Admin,
+                CreatedAt = DateTime.UtcNow
+            };
+            dbContext.UserAccounts.Add(safiaAdmin);
+        }
+        safiaAdmin.Role = UserRole.Admin;
+        safiaAdmin.PasswordHash = passwordHasher.HashPassword(safiaAdmin, safiaAdminPassword);
+        dbContext.SaveChanges();
+    }
 }
 
 app.Run();
