@@ -39,7 +39,7 @@ public class RegisterViewModel
 public class BookingViewModel
 {
     [Required]
-    public DateTime AppointmentDate { get; set; } = DateTime.Today;
+    public DateTime AppointmentDate { get; set; } = DateTime.UtcNow.Date;
 
     [Required]
     public string TimeSlot { get; set; } = string.Empty;

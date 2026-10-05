@@ -25,7 +25,7 @@ public class DoctorController : Controller
             return RedirectToAction("Logout", "Account");
         }
 
-        var today = DateTime.Today;
+        var today = DateTime.UtcNow.Date;
         var todayAppointments = await _context.Appointments
             .Include(a => a.Patient)
             .Where(a => a.DoctorId == doctor.Id && a.AppointmentDate.Date == today)

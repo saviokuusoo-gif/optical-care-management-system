@@ -19,7 +19,7 @@ namespace optical_care_management_system.Models
         public Frame? Frame { get; set; }
 
 
-        public DateTime BookingDate { get; set; } = DateTime.Now;
+        public DateTime BookingDate { get; set; } = DateTime.UtcNow;
 
 
         /// <summary>Pending, Approved, Collected or Canceled.</summary>

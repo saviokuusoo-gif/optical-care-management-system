@@ -22,7 +22,7 @@ public class AdminController : Controller
         var viewModel = new DashboardViewModel
         {
             TotalPatients = await _context.Patients.CountAsync(),
-            TodayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate.Date == DateTime.Today),
+            TodayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate.Date == DateTime.UtcNow.Date),
             ActiveDoctors = await _context.Doctors.CountAsync(),
             LowInventoryItems = await _context.InventoryItems.CountAsync(i => i.StockQuantity <= i.LowStockThreshold)
         };
@@ -700,7 +700,7 @@ public class AdminController : Controller
         var viewModel = new DashboardViewModel
         {
             TotalPatients = await _context.Patients.CountAsync(),
-            TodayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate.Date == DateTime.Today),
+            TodayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate.Date == DateTime.UtcNow.Date),
             ActiveDoctors = await _context.Doctors.CountAsync(),
             LowInventoryItems = await _context.InventoryItems.CountAsync(i => i.StockQuantity <= i.LowStockThreshold)
         };
@@ -831,7 +831,7 @@ public class AdminController : Controller
     public async Task<IActionResult> ExportReports()
     {
         var totalPatients = await _context.Patients.CountAsync();
-        var todayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate.Date == DateTime.Today);
+        var todayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate.Date == DateTime.UtcNow.Date);
         var activeDoctors = await _context.Doctors.CountAsync();
         var lowInventoryItems = await _context.InventoryItems.CountAsync(i => i.StockQuantity <= i.LowStockThreshold);
 

@@ -330,7 +330,7 @@ public class FramesController : Controller
         {
             PatientId = patient.Id,
             FrameId = frame.Id,
-            BookingDate = DateTime.Now,
+            BookingDate = DateTime.UtcNow,
             Status = "Pending",
             Notes = notes ?? string.Empty
         });
