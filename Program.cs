@@ -302,6 +302,33 @@ using (var scope = app.Services.CreateScope())
         doctorProfile.UserAccountId = doctorUser.Id;
         dbContext.SaveChanges();
     }
+
+    // Hubi in Admin default ah jiro. Password-ka waxaa laga akhriyaa
+    // configuration (env var "DefaultAdminPassword") - lama qoro code-ka
+    // si aan loo push gareyn credential-yo source control.
+    var defaultAdminPassword = builder.Configuration["DefaultAdminPassword"];
+    if (string.IsNullOrWhiteSpace(defaultAdminPassword))
+    {
+        defaultAdminPassword = "Admin-" + Guid.NewGuid().ToString("N")[..12];
+        Console.WriteLine($"[Seed] DefaultAdminPassword env var ma jirto - waxaa la sameeyay password ku meel gaar ah user-ka 'superadmin': {defaultAdminPassword}");
+    }
+
+    var defaultAdmin = dbContext.UserAccounts.FirstOrDefault(u => u.Username == "superadmin");
+    if (defaultAdmin == null)
+    {
+        defaultAdmin = new UserAccount
+        {
+            Username = "superadmin",
+            Email = "superadmin@opticalcare.com",
+            FullName = "System Administrator",
+            Role = UserRole.Admin,
+            CreatedAt = DateTime.UtcNow
+        };
+        dbContext.UserAccounts.Add(defaultAdmin);
+    }
+    defaultAdmin.Role = UserRole.Admin;
+    defaultAdmin.PasswordHash = passwordHasher.HashPassword(defaultAdmin, defaultAdminPassword);
+    dbContext.SaveChanges();
 }
 
 app.Run();
