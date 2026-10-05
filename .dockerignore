@@ -1,0 +1,12 @@
+bin/
+obj/
+Documentation/
+*.md
+.git/
+.vs/
+.vscode/
+build_output.txt
+build_error.txt
+migration_output.txt
+migration_error.txt
+*.ipynb
