@@ -25,10 +25,11 @@ public class DoctorController : Controller
             return RedirectToAction("Logout", "Account");
         }
 
-        var today = DateTime.UtcNow.Date;
+        var todayStart = DateTime.UtcNow.Date;
+        var tomorrowStart = todayStart.AddDays(1);
         var todayAppointments = await _context.Appointments
             .Include(a => a.Patient)
-            .Where(a => a.DoctorId == doctor.Id && a.AppointmentDate.Date == today)
+            .Where(a => a.DoctorId == doctor.Id && a.AppointmentDate >= todayStart && a.AppointmentDate < tomorrowStart)
             .OrderBy(a => a.TimeSlot)
             .ToListAsync();
 
@@ -199,7 +200,7 @@ public class DoctorController : Controller
             }
 
             existing.PatientId = record.PatientId;
-            existing.ExamDate = record.ExamDate;
+            existing.ExamDate = DateTime.SpecifyKind(record.ExamDate, DateTimeKind.Utc);
             existing.LeftEye = record.LeftEye;
             existing.RightEye = record.RightEye;
             existing.VisualAcuity = record.VisualAcuity;
@@ -372,7 +373,7 @@ public class DoctorController : Controller
 
             existing.PatientId = prescription.PatientId;
             existing.ExaminationRecordId = prescription.ExaminationRecordId;
-            existing.PrescriptionDate = prescription.PrescriptionDate;
+            existing.PrescriptionDate = DateTime.SpecifyKind(prescription.PrescriptionDate, DateTimeKind.Utc);
             existing.LensType = prescription.LensType;
             existing.LeftEye = prescription.LeftEye;
             existing.RightEye = prescription.RightEye;

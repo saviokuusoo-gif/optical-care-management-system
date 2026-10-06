@@ -33,6 +33,7 @@ public class AppointmentsController : Controller
             appointment.DoctorId = null;
         }
 
+        appointment.AppointmentDate = DateTime.SpecifyKind(appointment.AppointmentDate, DateTimeKind.Utc);
         appointment.Status = AppointmentStatus.Pending;
         appointment.CreatedAt = DateTime.UtcNow;
 

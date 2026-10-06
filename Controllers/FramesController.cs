@@ -398,12 +398,47 @@ public class FramesController : Controller
     {
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-        if (!int.TryParse(userIdClaim, out var userId))
+        if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
             return null;
         }
 
-        return await _context.Patients.FirstOrDefaultAsync(p => p.UserAccountId == userId);
+        var patient = await _context.Patients.FirstOrDefaultAsync(p => p.UserAccountId == userId);
+        if (patient != null) return patient;
+
+        var user = await _context.UserAccounts.FindAsync(userId);
+        if (user == null) return null;
+
+        if (!string.IsNullOrWhiteSpace(user.Email))
+        {
+            patient = await _context.Patients.FirstOrDefaultAsync(p => p.Email == user.Email);
+            if (patient != null)
+            {
+                if (patient.UserAccountId == null)
+                {
+                    patient.UserAccountId = user.Id;
+                    await _context.SaveChangesAsync();
+                }
+                return patient;
+            }
+        }
+
+        if (user.Role == UserRole.Patient)
+        {
+            patient = new Patient
+            {
+                FullName = user.FullName,
+                Email = user.Email,
+                Phone = string.Empty,
+                UserAccountId = user.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.Patients.Add(patient);
+            await _context.SaveChangesAsync();
+            return patient;
+        }
+
+        return null;
     }
     // GET: Frames/Create
     [Authorize(Roles = "Admin")]

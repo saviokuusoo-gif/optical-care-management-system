@@ -149,6 +149,14 @@ public class AccountController : Controller
     }
 
     [HttpGet]
+    [ActionName("Logout")]
+    public async Task<IActionResult> LogoutGet()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return RedirectToAction("Index", "Home");
+    }
+
+    [HttpGet]
     public IActionResult AccessDenied()
     {
         return View();

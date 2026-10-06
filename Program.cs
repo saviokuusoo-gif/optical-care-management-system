@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using optical_care_management_system.Models;
 
+// Allow Postgres to work smoothly with any DateTime Kind across all controllers and entities
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

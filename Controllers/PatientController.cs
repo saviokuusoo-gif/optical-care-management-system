@@ -72,9 +72,9 @@ public class PatientController : Controller
         {
             PatientId = patient.Id,
             DoctorId = model.DoctorId,
-            AppointmentDate = model.AppointmentDate,
+            AppointmentDate = DateTime.SpecifyKind(model.AppointmentDate, DateTimeKind.Utc),
             TimeSlot = model.TimeSlot,
-            Notes = model.Notes,
+            Notes = model.Notes ?? string.Empty,
             Status = AppointmentStatus.Pending,
             CreatedAt = DateTime.UtcNow
         };
@@ -172,10 +172,12 @@ public class PatientController : Controller
         currentPatient.FullName = patient.FullName;
         currentPatient.Email = patient.Email;
         currentPatient.Phone = patient.Phone;
-        currentPatient.DateOfBirth = patient.DateOfBirth;
-        currentPatient.Gender = patient.Gender;
-        currentPatient.Address = patient.Address;
-        currentPatient.EmergencyContact = patient.EmergencyContact;
+        currentPatient.DateOfBirth = patient.DateOfBirth.HasValue
+            ? DateTime.SpecifyKind(patient.DateOfBirth.Value, DateTimeKind.Utc)
+            : null;
+        if (!string.IsNullOrWhiteSpace(patient.Gender)) currentPatient.Gender = patient.Gender;
+        if (!string.IsNullOrWhiteSpace(patient.Address)) currentPatient.Address = patient.Address;
+        if (!string.IsNullOrWhiteSpace(patient.EmergencyContact)) currentPatient.EmergencyContact = patient.EmergencyContact;
 
         _context.Patients.Update(currentPatient);
 
@@ -198,14 +200,48 @@ public class PatientController : Controller
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (string.IsNullOrWhiteSpace(userIdClaim))
+        if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
             return null;
 
-        // A malformed claim should log the user out, not throw a 500.
-        if (!int.TryParse(userIdClaim, out var userId))
-            return null;
-
-        return await _context.Patients
+        var patient = await _context.Patients
             .FirstOrDefaultAsync(p => p.UserAccountId == userId);
+
+        if (patient != null)
+            return patient;
+
+        var user = await _context.UserAccounts.FindAsync(userId);
+        if (user == null)
+            return null;
+
+        if (!string.IsNullOrWhiteSpace(user.Email))
+        {
+            patient = await _context.Patients.FirstOrDefaultAsync(p => p.Email == user.Email);
+            if (patient != null)
+            {
+                if (patient.UserAccountId == null)
+                {
+                    patient.UserAccountId = user.Id;
+                    await _context.SaveChangesAsync();
+                }
+                return patient;
+            }
+        }
+
+        if (user.Role == UserRole.Patient)
+        {
+            patient = new Patient
+            {
+                FullName = user.FullName,
+                Email = user.Email,
+                Phone = string.Empty,
+                UserAccountId = user.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.Patients.Add(patient);
+            await _context.SaveChangesAsync();
+            return patient;
+        }
+
+        return null;
     }
 }

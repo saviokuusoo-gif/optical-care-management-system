@@ -19,10 +19,12 @@ public class AdminController : Controller
 
     public async Task<IActionResult> Dashboard()
     {
+        var todayStart = DateTime.UtcNow.Date;
+        var tomorrowStart = todayStart.AddDays(1);
         var viewModel = new DashboardViewModel
         {
             TotalPatients = await _context.Patients.CountAsync(),
-            TodayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate.Date == DateTime.UtcNow.Date),
+            TodayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate >= todayStart && a.AppointmentDate < tomorrowStart),
             ActiveDoctors = await _context.Doctors.CountAsync(),
             LowInventoryItems = await _context.InventoryItems.CountAsync(i => i.StockQuantity <= i.LowStockThreshold)
         };
@@ -61,6 +63,11 @@ public class AdminController : Controller
         if (!ModelState.IsValid)
         {
             return View(patient);
+        }
+
+        if (patient.DateOfBirth.HasValue)
+        {
+            patient.DateOfBirth = DateTime.SpecifyKind(patient.DateOfBirth.Value, DateTimeKind.Utc);
         }
 
         var isNew = (id == null || id == 0) && patient.Id == 0;
@@ -460,6 +467,8 @@ public class AdminController : Controller
             return View(appointment);
         }
 
+        appointment.AppointmentDate = DateTime.SpecifyKind(appointment.AppointmentDate, DateTimeKind.Utc);
+
         var isNew = (id == null || id == 0) && appointment.Id == 0;
         if (isNew)
         {
@@ -551,6 +560,8 @@ public class AdminController : Controller
             ViewBag.Doctors = new SelectList(await _context.Doctors.ToListAsync(), "Id", "FullName");
             return View(record);
         }
+
+        record.ExamDate = DateTime.SpecifyKind(record.ExamDate, DateTimeKind.Utc);
 
         var isNew = (id == null || id == 0) && record.Id == 0;
         if (isNew)
@@ -697,10 +708,12 @@ public class AdminController : Controller
 
     public async Task<IActionResult> Reports()
     {
+        var todayStart = DateTime.UtcNow.Date;
+        var tomorrowStart = todayStart.AddDays(1);
         var viewModel = new DashboardViewModel
         {
             TotalPatients = await _context.Patients.CountAsync(),
-            TodayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate.Date == DateTime.UtcNow.Date),
+            TodayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate >= todayStart && a.AppointmentDate < tomorrowStart),
             ActiveDoctors = await _context.Doctors.CountAsync(),
             LowInventoryItems = await _context.InventoryItems.CountAsync(i => i.StockQuantity <= i.LowStockThreshold)
         };
@@ -831,7 +844,9 @@ public class AdminController : Controller
     public async Task<IActionResult> ExportReports()
     {
         var totalPatients = await _context.Patients.CountAsync();
-        var todayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate.Date == DateTime.UtcNow.Date);
+        var todayStart = DateTime.UtcNow.Date;
+        var tomorrowStart = todayStart.AddDays(1);
+        var todayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate >= todayStart && a.AppointmentDate < tomorrowStart);
         var activeDoctors = await _context.Doctors.CountAsync();
         var lowInventoryItems = await _context.InventoryItems.CountAsync(i => i.StockQuantity <= i.LowStockThreshold);
 

@@ -1,25 +1,101 @@
-﻿@model ErrorViewModel
+@model ErrorViewModel
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = "System Notification";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-danger text-white py-3 px-4 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation fs-4"></i>
+                    <div>
+                        <h5 class="mb-0 fw-bold">An issue occurred while processing your request</h5>
+                        <small class="text-white text-opacity-75">We apologize for the inconvenience</small>
+                    </div>
+                </div>
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+                <div class="card-body p-4 bg-white">
+                    @if (Model.ShowDetails)
+                    {
+                        <div class="alert alert-warning border-0 rounded-3 d-flex align-items-start gap-2 mb-4">
+                            <i class="fa-solid fa-triangle-exclamation text-warning fs-5 mt-1"></i>
+                            <div>
+                                <strong class="d-block mb-1">Error Message:</strong>
+                                <span>@Model.ErrorMessage</span>
+                                @if (!string.IsNullOrWhiteSpace(Model.ErrorPath))
+                                {
+                                    <div class="small text-muted mt-1">Requested path: <code>@Model.ErrorPath</code></div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-secondary mb-4">
+                            An unexpected situation was encountered. Your session is safe, and you can continue using the system by returning to your dashboard or the home page.
+                        </p>
+                    }
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+                    @if (Model.ShowRequestId)
+                    {
+                        <div class="text-muted small mb-4">
+                            <strong>Reference ID:</strong> <code>@Model.RequestId</code>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.StackTrace))
+                    {
+                        <div class="accordion mb-4" id="errorAccordion">
+                            <div class="accordion-item border rounded-3 overflow-hidden">
+                                <h2 class="accordion-header" id="headingDetails">
+                                    <button class="accordion-button collapsed py-2 px-3 small fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDetails" aria-expanded="false" aria-controls="collapseDetails">
+                                        <i class="fa-solid fa-code me-2 text-secondary"></i> Technical Diagnostic Details
+                                    </button>
+                                </h2>
+                                <div id="collapseDetails" class="accordion-collapse collapse" aria-labelledby="headingDetails" data-bs-parent="#errorAccordion">
+                                    <div class="accordion-body bg-light p-3">
+                                        <pre class="small text-danger mb-0" style="white-space: pre-wrap; word-break: break-all; max-height: 250px; overflow-y: auto;">@Model.StackTrace</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-pill px-4">
+                            <i class="fa-solid fa-arrow-left me-1"></i> Go Back
+                        </a>
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-controller="Admin" asp-action="Dashboard" class="btn btn-primary rounded-pill px-4">
+                                    <i class="fa-solid fa-gauge me-1"></i> Admin Dashboard
+                                </a>
+                            }
+                            else if (User.IsInRole("Doctor"))
+                            {
+                                <a asp-controller="Doctor" asp-action="Dashboard" class="btn btn-primary rounded-pill px-4">
+                                    <i class="fa-solid fa-user-doctor me-1"></i> Doctor Dashboard
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Patient" asp-action="Dashboard" class="btn btn-primary rounded-pill px-4">
+                                    <i class="fa-solid fa-house-user me-1"></i> My Dashboard
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-primary rounded-pill px-4">
+                                <i class="fa-solid fa-house me-1"></i> Home Page
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
